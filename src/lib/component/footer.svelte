@@ -7,7 +7,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-10">
       <!-- About Section -->
       <div class="sm:col-span-2 md:col-span-1">
-        <h5 class="text-lg font-semibold text-white mb-4 ubuntu-regular">เกี่ยวกับ Pictoria</h5>
+        <h5 class="text-lg font-semibold text-white mb-4 ubuntu-regular">เกี่ยวกับ Valeria</h5>
         <p class="text-sm leading-relaxed">
           แพลตฟอร์มสำหรับค้นหาและดาวน์โหลดภาพถ่าย สต็อกวิดีโอ และเวกเตอร์คุณภาพสูงสำหรับโปรเจกต์สร้างสรรค์ของคุณ เรามุ่งมั่นที่จะนำเสนอเนื้อหาที่ดีที่สุดจากช่างภาพและศิลปินทั่วโลก
         </p>
@@ -65,7 +65,7 @@
     </div>
 
     <div class="border-t border-gray-700 pt-8 mt-8 text-center text-sm">
-      <p class="ubuntu-regular">&copy; {currentYear} Pictoria. สงวนลิขสิทธิ์.</p>
+      <p class="ubuntu-regular">&copy; {currentYear} Valeria. สงวนลิขสิทธิ์.</p>
       <p class="mt-2 text-gray-400">
         ออกแบบและพัฒนาด้วย <span class="text-red-400">&hearts;</span> โดย เจษฎา บุญทา
       </p>

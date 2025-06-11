@@ -41,14 +41,14 @@
       `,
     },
     {
-      id: 4,
+      id: 3,
       imageUrl: "/corusel/sky.jpg",
       altText:"20% off",
       html:`
       <div class='w-full px-10'>
         <p class='text-7xl text-white font-bold'>สมัครตอนนี้ ฟรี 1 รูป </p>
         <br/>
-          <button class='w-30 h-12 my-auto bg-blue-500 hover:bg-blue-600 text-white content-center font-bold'>สมัครเลย</button>
+          <a href='/signup'><button class='w-30 h-12 my-auto bg-blue-500 hover:bg-blue-600 text-white content-center font-bold'>สมัครเลย</button></a>
       </div>
       `,
     },

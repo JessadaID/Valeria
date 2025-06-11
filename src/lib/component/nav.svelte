@@ -1,13 +1,25 @@
 <script>
 	import { fade } from 'svelte/transition';
 	import { goto, invalidate } from '$app/navigation';
+  import { StoreUser as authStore} from '$lib/stores/userStore'
+  import { onMount } from 'svelte';
 
 	let searchValue = '';
-	let suggestions = [];
 	let isDropdownVisible = false;
 
-	
-	// 4. Handle main search
+ 
+  let userProfile = null; // ตัวแปรนี้จะเก็บอ็อบเจ็กต์ user จริงๆ (เช่น JSON ที่ให้มาในโจทย์)
+
+  // ติดตามการเปลี่ยนแปลงของ user store
+  // authStore จะมีค่าเป็นอ็อบเจ็กต์ { user: UserObject, session: SessionObject }
+  const unsubscribe = authStore.subscribe(storeState => {
+    if (storeState && storeState.user) {
+      userProfile = storeState.user; // ดึงอ็อบเจ็กต์ user ออกมา
+    } else {
+      userProfile = null; // กรณีที่ยังไม่ได้ login หรือ store ว่างเปล่า
+    }
+  });
+
 	function handleSearch() {
 		if (searchValue.trim()) {
 			goto(`/search?q=${encodeURIComponent(searchValue.trim())}`);
@@ -25,6 +37,7 @@
    * max-w-7xl Screen
   */
 
+  
 </script>
 
 
@@ -50,8 +63,12 @@
     <!-- Auth Links -->
     <div class="flex space-x-4">
       <a href="" class="text-xs text-slate-600 hover:text-violet-600 border-r-3 border-violet-500 pr-4">Thai</a>
-      <a href="/signup" class="text-xs text-slate-600 hover:text-violet-600">สมัครสมาชิก</a>
-      <a href="/login" class="text-xs text-slate-600 hover:text-violet-600">เข้าสู่ระบบ</a>
+      {#if userProfile}
+        <a href="/profile" class="text-xs text-slate-600 hover:text-violet-600">โปรไฟล์ <b class='font-bold'>{userProfile.user_metadata.username|| 'N/A'}</b></a>
+      {:else}
+        <a href="/signup" class="text-xs text-slate-600 hover:text-violet-600">สมัครสมาชิก</a>
+        <a href="/login" class="text-xs text-slate-600 hover:text-violet-600">เข้าสู่ระบบ</a>
+      {/if}
     </div>
   </div>
 
@@ -59,7 +76,7 @@
   <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
     <!-- Brand/Logo -->
 		<div class="ms-5">
-			<a href="/" class="text-2xl font-semibold text-violet-600 ubuntu-regular">Pictoria</a>
+			<a href="/" class="text-2xl font-semibold text-violet-600 ubuntu-regular">Valeria</a>
 		</div>
     
 
