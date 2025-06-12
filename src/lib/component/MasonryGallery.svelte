@@ -1,21 +1,13 @@
 <script>
   import { goto } from '$app/navigation';
-  import { onMount, onDestroy, tick } from 'svelte';
-  import { successAlert , warningAlert , errorAlert } from '$lib/alertUtils';
-
+  import { onMount, tick } from 'svelte';
+  import { formatNumber } from '$lib/formatNumber';
+  import { cartStore } from '$lib/stores/cartStore';
   export let goods = [];
+
   let galleryContainer;
   let resizeTimeout;
   let layoutTimeout;
-  let alertMessage = "";
-  const ALERT_TIMEOUT = 3000;
-
-  function setTimedAlert(message) {
-    alertMessage = message;
-    setTimeout(() => {
-      alertMessage = "";
-    }, ALERT_TIMEOUT);
-  }
   
   // Debounced version of initMasonryLayout
   function scheduleLayoutRecalculation() {
@@ -114,53 +106,10 @@
     scheduleLayoutRecalculation();
   }
 
-  function formatNumber(num) {
-    if (num === null || num === undefined) return '0';
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
-    }
-    if (num >= 1000) {
-      const val = num / 1000;
-      return val.toFixed(val % 1 === 0 ? 0 : 1) + 'K';
-    }
-    return num.toString();
-  }
+
 
   function ViewDetail (id) {
-    console.log(id);
-    goto("/product?id="+id)
-  }
-
-  function Addtocart (itemToAdd) {
-    const storedCart = localStorage.getItem("cartitem");
-    let cart = [];
-
-    if (storedCart) {
-      try {
-        const parsedItems = JSON.parse(storedCart);
-        if (Array.isArray(parsedItems)) {
-          cart = parsedItems;
-        } else {
-          console.warn("Cart data in localStorage is not an array. Initializing a new cart.");
-
-          // cart remains []
-        }
-      } catch (error) {
-        console.error("Error parsing cart items from localStorage:", error);
-
-        // cart remains []
-      }
-    }
-
-    const isAlreadyInCart = cart.some(cartItem => cartItem.id === itemToAdd.id);
-
-    if (isAlreadyInCart) {
-      warningAlert("เตือน: สินค้านี้มีอยู่ในตะกร้าแล้ว");
-    } else {
-      cart.push(itemToAdd); // Add the whole item object
-        localStorage.setItem("cartitem", JSON.stringify(cart));
-      successAlert("เพิ่มสินค้าในตะกร้าสำเร็จ!");
-    }
+    goto(`/product?id=${id}`);
   }
 
 </script>
@@ -179,13 +128,11 @@
           />
           <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100 ">
             <div class="flex gap-3">
-              <button on:click={() => Addtocart(good)} class="w-10 h-10 bg-white/90 backdrop-blur-sm hover:text-violet-500 text-gray-700 rounded-full flex items-center justify-center hover:bg-white transition-colors" aria-label="Download">
+              <button on:click={() => cartStore.addItem(good)} class="w-10 h-10 bg-white/90 backdrop-blur-sm hover:text-violet-500 text-gray-700 rounded-full flex items-center justify-center hover:bg-white transition-colors" aria-label="Download">
                 <svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-shopping-cart-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M12.5 17h-6.5v-14h-2" /><path d="M6 5l14 1l-.86 6.017m-2.64 .983h-10.5" /><path d="M16 19h6" /><path d="M19 16v6" /></svg>
               </button>
-              <button class="w-10 h-10 bg-white/90 backdrop-blur-sm text-gray-700 rounded-full flex items-center justify-center hover:bg-white hover:text-red-500 transition-colors" aria-label="Like">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                </svg>
+              <button on:click={() => ViewDetail(good.id)} class="w-10 h-10 bg-white/90 backdrop-blur-sm text-gray-700 rounded-full flex items-center justify-center hover:bg-white hover:text-red-500 transition-colors" aria-label="Like">
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>
               </button>
             </div>
           </div>

@@ -1,22 +1,29 @@
 <script>
 	import { fade } from 'svelte/transition';
-	import { goto, invalidate } from '$app/navigation';
-  import { StoreUser as authStore} from '$lib/stores/userStore'
-  import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+  import { StoreUser as authStore} from '$lib/stores/userStore';
+  import { cartStore } from '$lib/stores/cartStore';
+  import { onMount, onDestroy } from 'svelte';
 
 	let searchValue = '';
 	let isDropdownVisible = false;
+  let cartItems = [];
+  let userProfile = null;
 
- 
-  let userProfile = null; // ตัวแปรนี้จะเก็บอ็อบเจ็กต์ user จริงๆ (เช่น JSON ที่ให้มาในโจทย์)
+  // Reactive statement สำหรับคำนวณจำนวนสินค้าในตะกร้า
+  $: cartItemCount = cartItems.reduce((total, item) => total + (item.quantity || 1), 0);
 
-  // ติดตามการเปลี่ยนแปลงของ user store
-  // authStore จะมีค่าเป็นอ็อบเจ็กต์ { user: UserObject, session: SessionObject }
-  const unsubscribe = authStore.subscribe(storeState => {
+  // Subscribe to cart store
+  const unsubscribeCart = cartStore.subscribe(items => {
+    cartItems = items;
+  });
+
+  // Subscribe to auth store
+  const unsubscribeAuth = authStore.subscribe(storeState => {
     if (storeState && storeState.user) {
-      userProfile = storeState.user; // ดึงอ็อบเจ็กต์ user ออกมา
+      userProfile = storeState.user;
     } else {
-      userProfile = null; // กรณีที่ยังไม่ได้ login หรือ store ว่างเปล่า
+      userProfile = null;
     }
   });
 
@@ -30,17 +37,35 @@
   function showDropdown(){
     isDropdownVisible = true;
   }
+  
   function hideDropdown(){
     isDropdownVisible = false;
   }
-  /**
-   * max-w-7xl Screen
-  */
 
-  
+  onMount(() => {
+    // โหลดข้อมูลตะกร้าจาก localStorage เมื่อ component โหลด
+    cartStore.loadFromStorage();
+    
+    // ฟัง storage event สำหรับการเปลี่ยนแปลงจากแท็บอื่น
+    const handleStorageChange = (event) => {
+      if (event.key === 'cartitem') {
+        cartStore.refresh();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  });
+
+  onDestroy(() => {
+    if (unsubscribeCart) unsubscribeCart();
+    if (unsubscribeAuth) unsubscribeAuth();
+  });
+
 </script>
-
-
 
 <nav class="py-3 border-gray-200 border-b-2">
     
@@ -72,14 +97,12 @@
     </div>
   </div>
 
-
   <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
     <!-- Brand/Logo -->
 		<div class="ms-5">
 			<a href="/" class="text-2xl font-semibold text-violet-600 ubuntu-regular">Valeria</a>
 		</div>
     
-
     <!-- Search Bar -->
     <div class="relative flex-grow max-w-2xl mx-4"> 
       <input
@@ -106,28 +129,34 @@
 		</svg>
 	</button>
 
-        <!-- 🔽 Drop-down Suggestions -->
+      <!-- 🔽 Drop-down Suggestions -->
       {#if isDropdownVisible}
-        <ul class="absolute z-20 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg">
+        <ul class="absolute z-20 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg" on:click={() => handleSearch()}>
             <li
               class="px-4 py-2 hover:bg-violet-100 text-sm text-gray-700 cursor-pointer"
-              on:click={() => handleSearch()}
+              
             >
               ค้นหา {searchValue} จากทั้งหมดที่มี
             </li>
         </ul>
       {/if}
-
     </div>
 
     <!-- Icons -->
     <div class="flex max-w-7xl space-x-6 ">
-	  <a href="/cart" class="text-slate-600 hover:text-violet-600">
+	  <a href="/cart" class="relative text-slate-600 hover:text-violet-600">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
+        {#if cartItemCount > 0}
+        <span 
+            class="absolute -top-2 -right-2.5 bg-red-500 text-white text-xs font-semibold rounded-full h-5 w-5 flex items-center justify-center leading-none"
+            transition:fade={{ duration: 200 }}
+        >
+            {cartItemCount > 99 ? '99+' : cartItemCount}
+        </span>
+       {/if}
       </a>
-      
     </div>
   </div>
 

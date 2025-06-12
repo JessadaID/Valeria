@@ -1,9 +1,11 @@
 <script>
   import { onMount } from "svelte";
   import { goto } from '$app/navigation';
-  import { successAlert } from "$lib/alertUtils";
+  import { errorAlert, successAlert, warningAlert } from "$lib/alertUtils";
+  import { cartStore } from "$lib/stores/cartStore";
 
   let itemcart = [];
+  let isLoading = false ;
 
   onMount(() => {
     const storedCart = localStorage.getItem("cartitem");
@@ -29,12 +31,11 @@
 
   function removeItem(itemId) {
     itemcart = itemcart.filter(item => item.id !== itemId);
-    localStorage.setItem("cartitem", JSON.stringify(itemcart));
-    successAlert("ลบสินค้าในตะกร้าสำเร็จ!");
+    cartStore.removeItem(itemId);
   }
 
   function viewDetails(itemId) {
-    goto(`/product?q=${itemId}`);
+    goto(`/product?id=${itemId}`);
   }
 
   function formatFileSize(bytes, decimals = 2) {
@@ -55,9 +56,37 @@
   $: tax = subtotal * 0.07; // 7% tax
   $: total = subtotal + tax;
 
-  function proceedToCheckout() {
+  async function proceedToCheckout() {
     // Handle checkout logic here
-    alert('กำลังดำเนินการชำระเงิน...');
+    try {
+      isLoading = true; 
+      const response = await fetch('/api/v1/createpaymentsession', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: total,
+        }),
+      });
+      const data = await response.json();
+
+       if (!response.ok) {
+        const errorData = await response.json();
+        errorAlert(errorData.message || 'เกิดข้อผิดพลาดในการสร้างการชำระเงิน');
+        throw new Error(errorData.message || 'เกิดข้อผิดพลาดในการสร้างเซสชันชำระเงิน');
+      }else{
+        goto(`./cart/checkout?sessionId=${data.paymentSessionId}`);
+      }
+
+      // 2. นำทางไปยังหน้า QR Code พร้อมส่ง paymentSessionId
+    }catch (error) {
+      console.error('Error creating payment session:', error);
+      errorAlert('เกิดข้อผิดพลาดในการสร้างการชำระเงิน ');
+    }finally{
+      isLoading = false;
+    }
+
   }
 
 </script>
@@ -189,7 +218,7 @@
                 </div>
               </div>
 
-            <!-- Promo Code -->
+            <!-- Promo Code 
             <div class="mb-6">
               <label class="block text-sm font-medium text-gray-700 mb-2">รหัสส่วนลด</label>
               <div class="flex space-x-2">
@@ -203,6 +232,8 @@
                 </button>
               </div>
             </div>
+              -->
+
 
             <!-- Checkout Button -->
             <button 

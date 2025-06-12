@@ -2,7 +2,8 @@
   import { fly } from 'svelte/transition';
   import { quintOut, quintIn } from 'svelte/easing';
   import { onDestroy, createEventDispatcher } from 'svelte';
-  
+
+  export let id; // เพิ่ม prop id เข้ามาเพื่อใช้ในการระบุ alert แต่ละอัน
   export let type = 'info'; // 'success', 'warning', 'error', 'info'
   export let message = '';
   export let duration = 4000; // Auto hide duration in milliseconds
@@ -14,7 +15,6 @@
   let timeoutId;
 
   // Central function to manage the alert's timer.
-  // Called reactively when message or duration changes.
   function manageAlertTimer() {
     if (timeoutId) {
       clearTimeout(timeoutId);
@@ -23,22 +23,20 @@
     // Only set a new timer if there's a message and a positive duration
     if (message && duration > 0) {
       timeoutId = setTimeout(() => {
-        dispatch('hide'); // Signal parent to hide/unmount this component
+        dispatch('hide', { id }); // ส่ง id กลับไปเมื่อ alert ซ่อนตัว
       }, duration);
     }
   }
 
   // Reactive statement: re-evaluate and manage timer when message or duration changes.
-  // Pass message and duration as arguments to the reactive statement to ensure it re-runs when they change.
-  $: manageAlertTimer(message, duration);
-
+  $: manageAlertTimer(message, duration); // ไม่จำเป็นต้องใช้ message หรือ duration ในการสั่งให้มัน re-run
 
   function handleManualClose() {
     if (timeoutId) {
       clearTimeout(timeoutId);
       timeoutId = null;
     }
-    dispatch('hide');
+    dispatch('hide', { id }); // ส่ง id กลับไปเมื่อ alert ถูกปิดด้วยมือ
   }
 
   // Get position classes
@@ -87,40 +85,39 @@
   $: positionClass = getPositionClasses(position);
 </script>
 
-{#key message} <!-- This key directive ensures re-animation when message content changes, even on an existing instance -->
-    <div
-      in:fly={{ y: position.includes('top') ? -50 : 50, duration: 300, easing: quintOut }}
-      out:fly={{ y: position.includes('top') ? -100 : 100, duration: 250, easing: quintIn }}
-      class="fixed {positionClass} max-w-sm w-full mx-auto p-4 rounded-lg shadow-lg text-white z-50 {typeStyle.bg}"
-      role="alert"
-      aria-live="assertive"
-    >
-      <div class="flex items-start">
-        {#if showIcon}
-          <div class="flex-shrink-0 mr-3">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{typeStyle.icon}"></path>
-            </svg>
-          </div>
-        {/if}
-        
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium leading-5">{message}</p>
-        </div>
-        
-        {#if closeable}
-          <div class="ml-3 flex-shrink-0">
-            <button
-              on:click={handleManualClose}
-              class="inline-flex text-white hover:text-gray-200 focus:outline-none focus:text-gray-200 transition-colors"
-              aria-label="ปิด"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
-          </div>
-        {/if}
+<div
+  id="float-alert-{id}"
+  in:fly={{ y: position.includes('top') ? -50 : 50, duration: 300, easing: quintOut }}
+  out:fly={{ y: position.includes('top') ? -100 : 100, duration: 250, easing: quintIn }}
+  class="fixed {positionClass} max-w-sm w-full mx-auto p-4 rounded-lg shadow-lg text-white z-50 {typeStyle.bg}"
+  role="alert"
+  aria-live="assertive"
+>
+  <div class="flex items-start">
+    {#if showIcon}
+      <div class="flex-shrink-0 mr-3">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{typeStyle.icon}"></path>
+        </svg>
       </div>
+    {/if}
+
+    <div class="flex-1 min-w-0">
+      <p class="text-sm font-medium leading-5">{message}</p>
     </div>
-{/key}
+
+    {#if closeable}
+      <div class="ml-3 flex-shrink-0">
+        <button
+          on:click={handleManualClose}
+          class="inline-flex text-white hover:text-gray-200 focus:outline-none focus:text-gray-200 transition-colors"
+          aria-label="ปิด"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    {/if}
+  </div>
+</div>
