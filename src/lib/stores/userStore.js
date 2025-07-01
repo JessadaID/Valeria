@@ -59,9 +59,34 @@ function createPersistentUserStore() {
         localStorage.removeItem('currentUser');
       }
       set(null);
+    },
+    // ฟังก์ชันสำหรับตรวจสอบว่าผู้ใช้ล็อกอินอยู่หรือไม่
+    isLoggedIn: () => {
+      return typeof localStorage !== 'undefined' && localStorage.getItem('currentUser') !== null;
+    },
+    getuserId: () => {
+      const currentUserJson = localStorage.getItem('currentUser');
+      const userId = JSON.parse(currentUserJson)?.user.id; // สมมติว่า user มี property id
+      if (userId) {
+        try {
+          const currentUser = userId;
+          return currentUser || null; // คืนค่า id ถ้ามี ไม่งั้นคืน null
+        } catch (e) {
+          console.error("Error parsing user from localStorage", e);
+          return null; // ถ้าเกิดข้อผิดพลาดในการแปลง JSON
+        }
+      }
+      return null; // ถ้าไม่มีข้อมูลผู้ใช้ใน localStorage
+    },
+    unsubscribe: () => {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem('currentUser');
+      }
+      set(null);
     }
   };
 }
+
 
 export const StoreUser = createPersistentUserStore();
 

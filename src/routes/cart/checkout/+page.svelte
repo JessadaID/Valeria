@@ -1,12 +1,37 @@
 <script>
-
-  export let data; // รับค่าจาก load function ใน +page.server.js (ซึ่งควรมาจาก Server)
-  let  amount = data.amount;
-  let  orderId = data.sessionId;
-  let  promptpayId = data.promptpayId;
+  export let data; // รับค่าจาก load function ใน +page.server.js
+  let amount = data.amount;
+  let orderId = data.sessionId;
+  let promptpayId = data.promptpayId;
   let qrCodeDataUrl = data.qrCodeDataUrl;
-  //let currency = data.currency;
 
+  let selectedFile = null;
+  let previewUrl = null;
+  
+  function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      selectedFile = file;
+      
+      // สร้าง preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewUrl = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      alert('กรุณาเลือกไฟล์รูปภาพเท่านั้น');
+    }
+  }
+
+  function clearSlip() {
+    selectedFile = null;
+    previewUrl = null;
+    
+    // รีเซ็ต input file
+    const fileInput = document.getElementById('slipInput');
+    if (fileInput) fileInput.value = '';
+  }
 </script>
 
 <div class="container mx-auto px-4 py-8">
@@ -29,26 +54,47 @@
         <p class="text-lg font-semibold mb-2">สแกน QR Code เพื่อชำระเงิน</p>
         <p class="text-gray-600 text-sm">ใช้แอปพลิเคชันธนาคารของคุณเพื่อสแกน QR Code ด้านบน</p>
       </div>
-
-      <div class="border-t border-gray-200 pt-4 text-center">
-        <p class="text-gray-700 text-sm">หลังจากชำระเงินเรียบร้อยแล้ว ระบบจะอัปเดตสถานะคำสั่งซื้อของคุณโดยอัตโนมัติ</p>
-      </div>
     {:else}
       <div class="flex justify-center items-center h-64">
         <p class="text-gray-600">กำลังสร้าง QR Code...</p>
       </div>
     {/if}
 
-    <div class="mt-6 text-center">
-      <button
-        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-        on:click={() => {
-          // ในแอปพลิเคชันจริง คุณอาจจะเรียก API เพื่อตรวจสอบสถานะการชำระเงิน
-          alert('จำลองการตรวจสอบสถานะการชำระเงิน...');
-        }}
-      >
-        ตรวจสอบสถานะการชำระเงิน
-      </button>
+    <!-- ส่วนอัปโหลดสลิป -->
+    <div class="border-t border-gray-200 pt-6 mt-6">
+      <h3 class="text-lg font-semibold mb-4 text-center">ตรวจสอบสลิปการโอนเงิน</h3>
+      
+      <div class="mb-4">
+        <label for="slipInput" class="block text-sm font-medium text-gray-700 mb-2">
+          แนบสลิปการโอนเงิน
+        </label>
+        <input
+          id="slipInput"
+          type="file"
+          accept="image/*"
+          on:change={handleFileSelect}
+          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+
+      {#if previewUrl}
+        <div class="mb-4">
+          <img src={previewUrl} alt="Slip Preview" class="w-full max-w-xs mx-auto rounded-md border">
+        </div>
+      {/if}
+
+    </div>
+
+    <div class="mt-6 text-center border-t border-gray-200 pt-4">
+      {#if selectedFile}
+        <p class="text-sm text-gray-600 mb-2">คุณได้แนบสลิปแล้ว กรุณารอการตรวจสอบจากผู้ดูแลระบบ</p>
+          <button
+            on:click={clearSlip}
+            class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2"
+          >
+            ล้าง
+          </button>
+        {/if}
     </div>
   </div>
 
@@ -58,4 +104,3 @@
     <p>นายเจษฎา บุญทา</p>
   </div>
 </div>
-

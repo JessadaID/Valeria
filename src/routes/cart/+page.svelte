@@ -3,9 +3,87 @@
   import { goto } from '$app/navigation';
   import { errorAlert, successAlert, warningAlert } from "$lib/alertUtils";
   import { cartStore } from "$lib/stores/cartStore";
-
+  import { StoreUser } from "$lib/stores/userStore";
+  import { formatFileSize } from "$lib/formatFilesize";
   let itemcart = [];
-  let isLoading = false ;
+
+  const PRICE = 29;
+  const TAX = 0.07;
+  let isLoading = false;
+  
+  // Calculate totals
+  $: subtotal = itemcart.reduce((sum, item) => {
+    const price = item.price || PRICE; // Default price if not set
+    return sum + price;
+  }, 0);
+
+  $: tax = subtotal * TAX; // 7% tax
+  $: total = subtotal + tax;
+
+
+  async function insertOrder(){
+    try {
+      const response = await fetch('/api/v1/order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: StoreUser.getuserId(),
+          totalamount: total,
+          status : 'awaiting_payment',
+          createdAt: new Date().toISOString(),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'เกิดข้อผิดพลาดในการเพิ่มรายการสั่งซื้อ');
+      }else{
+        const orderData = await response.json();
+        const orderId = orderData.id; // Get the newly created order ID
+
+        // Insert each item into the orderitems table
+        for (const item of itemcart) {
+          await insertOrderItem(orderId, item);
+        }
+
+        // Clear the cart after successful order creation
+        itemcart = [];
+        cartStore.clearCart();
+        localStorage.setItem("cartitem", JSON.stringify([]));
+
+        //successAlert('เพิ่มรายการสั่งซื้อสำเร็จ');
+      }
+    } catch (error) {
+      console.error('Error inserting order item:', error);
+      errorAlert('เกิดข้อผิดพลาดในการเพิ่มรายการสั่งซื้อ');
+    }
+  }
+
+  async function insertOrderItem(orderId, item) {
+    try {
+      const response = await fetch('/api/v1/orderitems', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderId,
+          imageId: item.id,
+          price: item.price || PRICE,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'เกิดข้อผิดพลาดในการเพิ่มรายการสั่งซื้อ');
+      }
+    } catch (error) {
+      console.error('Error inserting order item:', error);
+      errorAlert('เกิดข้อผิดพลาดในการเพิ่มรายการสั่งซื้อ');
+    }
+  }
 
   onMount(() => {
     const storedCart = localStorage.getItem("cartitem");
@@ -38,55 +116,45 @@
     goto(`/product?id=${itemId}`);
   }
 
-  function formatFileSize(bytes, decimals = 2) {
-    if (!+bytes || bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
-  }
-
-  // Calculate totals
-  $: subtotal = itemcart.reduce((sum, item) => {
-    const price = item.price || 29; // Default price if not set
-    return sum + price;
-  }, 0);
-
-  $: tax = subtotal * 0.07; // 7% tax
-  $: total = subtotal + tax;
-
   async function proceedToCheckout() {
-    // Handle checkout logic here
-    try {
-      isLoading = true; 
-      const response = await fetch('/api/v1/createpaymentsession', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          amount: total,
-        }),
-      });
-      const data = await response.json();
+    if (StoreUser.isLoggedIn()){
+      // Handle checkout logic here
+      try {
+        isLoading = true; 
+        const response = await fetch('/api/v1/createpaymentsession', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            amount: total,
+          }),
+        });
+        const data = await response.json();
 
-       if (!response.ok) {
-        const errorData = await response.json();
-        errorAlert(errorData.message || 'เกิดข้อผิดพลาดในการสร้างการชำระเงิน');
-        throw new Error(errorData.message || 'เกิดข้อผิดพลาดในการสร้างเซสชันชำระเงิน');
-      }else{
-        goto(`./cart/checkout?sessionId=${data.paymentSessionId}`);
+        if (!response.ok) {
+          const errorData = await response.json();
+          errorAlert(errorData.message || 'เกิดข้อผิดพลาดในการสร้างการชำระเงิน');
+          throw new Error(errorData.message || 'เกิดข้อผิดพลาดในการสร้างเซสชันชำระเงิน');
+        }else{
+          // Insert order and order items
+
+          await insertOrder();
+          
+          goto(`./cart/checkout?sessionId=${data.paymentSessionId}`);
+        }
+
+        // 2. นำทางไปยังหน้า QR Code พร้อมส่ง paymentSessionId
+      }catch (error) {
+        console.error('Error creating payment session:', error);
+        errorAlert('เกิดข้อผิดพลาดในการสร้างการชำระเงิน ');
+      }finally{
+        isLoading = false;
       }
-
-      // 2. นำทางไปยังหน้า QR Code พร้อมส่ง paymentSessionId
-    }catch (error) {
-      console.error('Error creating payment session:', error);
-      errorAlert('เกิดข้อผิดพลาดในการสร้างการชำระเงิน ');
-    }finally{
-      isLoading = false;
+    }else{
+      warningAlert("กรุณาเข้าสู่ระบบเพื่อใช้งาน");
+      goto("/login");
     }
-
   }
 
 </script>

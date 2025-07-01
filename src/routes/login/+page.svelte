@@ -1,12 +1,11 @@
 <script>
   import { goto } from '$app/navigation';
-  import { get } from 'svelte/store';
   import { supabase } from '$lib/supabaseClient';
   import { StoreUser } from '$lib/stores/userStore'
+  import { errorAlert, successAlert } from '$lib/alertUtils';
 
   let email = '';
   let password = '';
-  let message = '';
   let loading = false;
 
   let user = {};
@@ -22,16 +21,17 @@
         password
       })
       user = data
+      
 
       if (error) {
-        message = 'เกิดข้อผิดพลาด: ' + error.message
+        errorAlert(`เกิดข้อผิดพลาด: ${error.message}`)
       } else {
-        message = 'เข้าสู่ระบบสำเร็จ!'
+        successAlert('เข้าสู่ระบบสำเร็จ!')
         StoreUser.setUser(user)
         goto('/')
       }
     } catch (error) {
-      message = 'เกิดข้อผิดพลาด: ' + error.message
+      errorAlert(`เกิดข้อผิดพลาด: ${error.message}`)
     } finally {
       loading = false
     }
@@ -60,9 +60,7 @@
         </div>
       </div>
 
-      {#if message}
-        <p class="text-sm text-red-600 text-center">{message}</p>
-      {/if}
+ 
 
       <div>
         <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">

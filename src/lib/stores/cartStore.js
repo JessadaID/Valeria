@@ -101,7 +101,7 @@ function createCartStore() {
         localStorage.removeItem('cartitem');
       }
       set([]);
-      successAlert('ล้างตะกร้าสำเร็จ!');
+      //successAlert('ล้างตะกร้าสำเร็จ!');
     },
 
     // รีเฟรชจาก localStorage (สำหรับกรณีที่มีการเปลี่ยนแปลงจากแหล่งอื่น)
