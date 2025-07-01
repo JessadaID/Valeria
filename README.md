@@ -2,7 +2,7 @@
     สร้างโดย JessadaId
 
 ## Preview
-!(Valeria)[./static/image.png]
+![Valeria](./static/image.png)
 
 ## สิ่งที่ได้
 ฝึกการใช้ 
