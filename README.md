@@ -1,6 +1,9 @@
 ## sveltekit Valeria WebApp
     สร้างโดย JessadaId
 
+## Preview
+!(Valeria)[./static/image.png]
+
 ## สิ่งที่ได้
 ฝึกการใช้ 
 1. LocalStoreage 
