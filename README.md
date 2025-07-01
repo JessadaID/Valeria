@@ -11,4 +11,3 @@
 6. Layout-MasonryGallery 
 7. Floating-Alert 
 8. Carosel-Autoslide
-9. Embedding-Vector (Search image and upload image)
