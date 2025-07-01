@@ -51,7 +51,7 @@
           <div class="space-y-3">
             {#if randomImages.length > 0}
               {#each randomImages as image (image.id)}
-                <a href={image.pageURL} target="_blank" rel="noopener noreferrer" class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg transition-colors duration-150 group">
+                <a href="product?id={image.id}" rel="noopener noreferrer" class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg transition-colors duration-150 group">
                   <img src={image.previewURL} alt="Random: {image.tags}" class="w-12 h-12 object-cover rounded-md flex-none group-hover:opacity-80 transition-opacity">
                   <div class="flex-grow overflow-hidden">
                     <p class="text-xs text-slate-700 font-medium line-clamp-1 group-hover:text-sky-600" title={image.tags}>

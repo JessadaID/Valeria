@@ -87,6 +87,7 @@
 
   onMount(() => {
     const storedCart = localStorage.getItem("cartitem");
+    //console.log("Stored cart items:", JSON.parse(storedCart));
     if (storedCart) {
       try {
         const parsedItems = JSON.parse(storedCart);
@@ -112,8 +113,12 @@
     cartStore.removeItem(itemId);
   }
 
-  function viewDetails(itemId) {
-    goto(`/product?id=${itemId}`);
+  function viewDetails(itemId , types='all') {
+    if(types == 'video'){
+      goto(`/product?id=${itemId}&type=video`);
+    }else{
+      goto(`/product?id=${itemId}`);
+    }
   }
 
   async function proceedToCheckout() {
@@ -185,12 +190,22 @@
                   <div class="flex items-start space-x-4">
                     <!-- Product Image -->
                     <div class="flex-shrink-0">
-                      <img 
-                        on:click={() => viewDetails(item.id)}
-                        src="{item.previewURL}" 
-                        alt="{item.tags || 'Product Image'}" 
-                        class="w-24 h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                      />
+                      {#if item.type == 'film'}
+                        <img 
+                          on:click={() => viewDetails(item.id,'video')}
+                          src="{item.videos.tiny.thumbnail}" 
+                          alt="{item.tags || 'Product Image'}" 
+                          class="w-24 h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                        />
+                      {:else}
+                        <img 
+                          on:click={() => viewDetails(item.id)}
+                          src="{item.previewURL}" 
+                          alt="{item.tags || 'Product Image'}" 
+                          class="w-24 h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                        />
+                      {/if}
+                      
                     </div>
                     
                     <!-- Product Details -->

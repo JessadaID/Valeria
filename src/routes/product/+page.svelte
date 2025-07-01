@@ -1,27 +1,28 @@
 <script>
     import { page } from "$app/stores";
-    import { successAlert, warningAlert } from "$lib/alertUtils";
-    import { onMount } from "svelte";
     import { formatNumber } from "$lib/formatNumber";
     import { formatFileSize } from "$lib/formatFilesize";
     import { Addtocart } from "$lib/Addtocart";
-  import Loading from "$lib/component/Loading.svelte";
+    import Loading from "$lib/component/Loading.svelte";
     // goto and onMount are not strictly needed with the reactive approach below
 
     const PIXABAY_API_KEY = import.meta.env.VITE_PIXABAY_API_KEY;
 
+    let apiUrl = '';
     let imageDetails = null;
     let loading = true; // Assume loading until we determine if an ID exists to fetch
     let error = null;
     let currentId = null; // To track the ID being fetched/displayed to avoid redundant fetches
-
+    let type = 'all'; // Default type, can be overridden by query parameter
     // Reactive effect for fetching when the `id` query parameter changes
     // Reactive effect for fetching when the `id` query parameter changes
     $: {
         const newIdFromQuery = $page.url.searchParams.get('id');
+        const newtype = $page.url.searchParams.get('type') || 'all';
         if (newIdFromQuery) {
             if (newIdFromQuery !== currentId) { // Only fetch if ID has actually changed
                 currentId = newIdFromQuery;
+                type = newtype; // Update type based on query parameter
                 loading = true;
                 imageDetails = null; // Clear old details
                 error = null; // Clear old errors
@@ -49,7 +50,11 @@
         }
 
         try {
-            const apiUrl = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&id=${encodeURIComponent(imageId)}`;
+            if(type === 'video'){
+                apiUrl = `https://pixabay.com/api/videos/?key=${PIXABAY_API_KEY}&id=${encodeURIComponent(imageId)}`;
+            }else{
+                apiUrl = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&id=${encodeURIComponent(imageId)}`;
+            }
             const respond = await fetch(apiUrl);
 
             if (!respond.ok) {
@@ -108,12 +113,20 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
                 <div class="lg:col-span-2 bg-whtie p-3 sm:p-4 rounded-lg shadow-lg border border-gray-200 flex items-center align-center">
-                    <img 
+                    
+                    {#if type === 'video'}
+                        <video controls class="w-full mt-4 rounded-md">
+                            <source src="{imageDetails.videos.large.url}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    {:else}
+                        <img 
                         src="{imageDetails.largeImageURL || imageDetails.webformatURL}" 
                         alt="{imageDetails.tags}" 
                         class="w-full h-auto object-contain rounded-md max-h-[75vh]"
                         loading="lazy"
                     />
+                    {/if}
                 </div>
 
                 <div class="lg:col-span-1 space-y-6">
