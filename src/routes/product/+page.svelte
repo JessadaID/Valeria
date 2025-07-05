@@ -10,6 +10,7 @@
 
     let apiUrl = '';
     let imageDetails = null;
+    let imageTag = null;
     let loading = true; // Assume loading until we determine if an ID exists to fetch
     let error = null;
     let currentId = null; // To track the ID being fetched/displayed to avoid redundant fetches
@@ -27,6 +28,7 @@
                 imageDetails = null; // Clear old details
                 error = null; // Clear old errors
                 fetchImageDetails(currentId);
+                fetchimagebytag(imageDetails);
             }
         } else {
             // No ID in URL
@@ -72,6 +74,8 @@
                 if (!imageDetails.price) {
                     imageDetails.price = 29; // Default price
                 }
+
+                fetchimagebytag(imageDetails);
             } else {
                 error = `ไม่พบรูปภาพสำหรับ ID: ${imageId}`;
                 // imageDetails remains null
@@ -84,6 +88,12 @@
         }
     }
 
+    async function fetchimagebytag(imageDetails){
+        //console.log(imageDetails.tags.split(',')[0].trim())
+        const respond = await fetch(`https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${imageDetails.tags.split(',')[0].trim()}&per_page=4&page=2`)
+        const data = await respond.json();
+        imageTag = data.hits;
+    }
 
 
 </script>
@@ -205,12 +215,14 @@
             </div>
 
             <!-- Related Images Section (Placeholder for future enhancement) -->
-            <div class="mt-12 pt-8 border-t border-gray-300">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-6">รูปภาพที่เกี่ยวข้อง (ตัวอย่าง)</h2>
-                <div class="text-center text-gray-500 bg-white p-8 rounded-lg shadow border">
-                    <p>ส่วนนี้สามารถแสดงรูปภาพที่คล้ายกันหรือมาจากผู้ใช้คนเดียวกันได้ในอนาคต</p>
-                    <p class="mt-2 text-sm"> (ต้องมีการพัฒนาเพิ่มเติม เช่น เรียก API อีกครั้งด้วย tags หรือ user ID)</p>
-                </div>
+            <div class="mt-12 pt-8 border-t border-gray-300 grid grid-cols-4 gap-4">
+                <p class="text-xl text-gray-800 col-span-4">รูปที่คล้ายกัน</p>
+                {#each imageTag as img }
+                    <div class="h-45 object-cover">
+                        <a href="product?id={img.id}" ><img src="{img.webformatURL}" alt="{img.tags}" class="w-full h-full"></a>
+                    </div>
+                {/each}
+               
             </div>
         </div>
     {:else}
@@ -225,3 +237,4 @@
         </div>
     {/if}
 </div>
+
