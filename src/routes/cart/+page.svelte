@@ -31,7 +31,7 @@
         body: JSON.stringify({
           userId: StoreUser.getuserId(),
           totalamount: total,
-          status : 'awaiting_payment',
+          status : 'paid',
           createdAt: new Date().toISOString(),
         }),
       });

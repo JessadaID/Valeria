@@ -116,12 +116,9 @@
 
     function getStatusClasses(status) {
         switch (status?.toLowerCase()) {
-            case 'completed':
-            case 'สำเร็จ':
+            case 'paid':
+            case 'ชำระเงินแล้ว':
                 return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-            case 'pending':
-            case 'รอดำเนินการ':
-                return 'bg-amber-100 text-amber-700 border-amber-200';
             case 'cancelled':
             case 'ยกเลิก':
                 return 'bg-red-100 text-red-700 border-red-200';
@@ -135,10 +132,8 @@
 
     function getStatusname(status) {
         switch (status?.toLowerCase()) {
-            case 'completed':
-                return 'สำเร็จ';    
-            case 'pending':
-                return 'รอดำเนินการ';
+            case 'paid':
+                return 'ชำระเงินแล้ว';
             case 'cancelled':
                 return 'ยกเลิก';
             case 'awaiting_payment':
@@ -299,7 +294,7 @@
                                                             class="w-20 h-20 rounded-lg object-cover border border-gray-200 cursor-pointer hover:scale-105 transition-transform duration-200"
                                                             loading="lazy"
                                                         />
-                                                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg transition-all duration-200 flex items-center justify-center">
+                                                        <div class="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-20 rounded-lg transition-all duration-200 flex items-center justify-center">
                                                             <svg class="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="currentColor" viewBox="0 0 24 24">
                                                                 <path d="M12 9a3 3 0 000 6 3 3 0 000-6z"/>
                                                                 <path d="M12 1l9.5 5.5v11L12 23l-9.5-6V6.5L12 1zm0 2.311L4.5 7.653v8.694l7.5 4.342 7.5-4.342V7.653L12 3.311z"/>
