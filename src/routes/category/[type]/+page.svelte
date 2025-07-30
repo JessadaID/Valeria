@@ -1,8 +1,10 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import MasonryGallery from "$lib/component/MasonryGallery.svelte";
+  export let data;
 
-
+  let Categorytype = data.type; // Access the type from the loaded data
+  //console.log("Category slug:", data.type);
   const PIXABAY_API_KEY = import.meta.env.VITE_PIXABAY_API_KEY;
 
   // Initialize goods with a structure that the template expects
@@ -20,7 +22,7 @@
     try {
       const params = new URLSearchParams({
         key: PIXABAY_API_KEY,
-        image_type: 'vector',
+        image_type: Categorytype,
         safesearch: 'true',
         page: String(pageToFetch),
         per_page: '20'

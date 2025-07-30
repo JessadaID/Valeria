@@ -3,30 +3,36 @@
     import { supabase } from "$lib/supabaseClient";
     import { onMount, tick } from "svelte";
 
-    let images = [];
+    import MediaItem from "./MediaItem.svelte";
+    import MediaTabs from "./MediaTabs.svelte"; // ตรวจสอบพาธให้ถูกต้อง
+
+    const PIXABAY_API_KEY = import.meta.env.VITE_PIXABAY_API_KEY;
+
+    let allMediaItems = [];
+    let displayedMedia = [];
     let loading = false;
     let currentUser = null;
     let galleryContainer;
     let resizeTimeout;
     let layoutTimeout;
+    let selectedMediaType = 'image'; // Default เป็น 'image'
 
-    // Debounced version of initMasonryLayout
     function scheduleLayoutRecalculation() {
         clearTimeout(layoutTimeout);
         layoutTimeout = setTimeout(async () => {
-            await tick(); // Ensure DOM is updated before layout calculation
+            await tick();
             initMasonryLayout();
         }, 60);
     }
 
     function getColumnCount() {
-        if (typeof window === 'undefined') return 3; // Default for SSR or non-browser
+        if (typeof window === 'undefined') return 3;
         const width = window.innerWidth;
-        if (width >= 1280) return 4; // xl
-        if (width >= 1024) return 3; // lg
-        if (width >= 768) return 3;  // md
-        if (width >= 640) return 2;  // sm
-        return 1;                     // xs
+        if (width >= 1280) return 4;
+        if (width >= 1024) return 3;
+        if (width >= 768) return 3;
+        if (width >= 640) return 2;
+        return 1;
     }
 
     function initMasonryLayout() {
@@ -34,7 +40,6 @@
 
         const items = Array.from(galleryContainer.querySelectorAll('.masonry-item'));
 
-        // If on small screens where CSS handles layout (flex column), reset JS styles and bail
         if (typeof window !== 'undefined' && window.innerWidth <= 640) {
             galleryContainer.style.height = 'auto';
             items.forEach(item => {
@@ -73,7 +78,7 @@
         galleryContainer.style.height = `${maxHeight}px`;
     }
 
-    function handleImageLoad() {
+    function handleMediaItemLoad() {
         scheduleLayoutRecalculation();
     }
 
@@ -91,63 +96,129 @@
 
     async function fetchOrders(){
         loading = true;
+        allMediaItems = [];
 
         await checkUser();
-        if (!currentUser) return;
+        if (!currentUser) {
+            loading = false;
+            return;
+        }
 
         try {
             const { data: orderData, error: orderError } = await supabase
                 .from('orders')
                 .select('*, order_items(*)')
-                .eq('user_id', currentUser.id)
+                .eq('user_id', currentUser.id);
 
             if (orderError) {
                 throw orderError;
             }
 
-            images = orderData.flatMap((image) => image.order_items);
-            if (images && images.length > 0) {
+            if (orderData && orderData.length > 0) {
+                const orderItems = orderData.flatMap((order) => order.order_items);
+                
                 const processedItems = await Promise.all(
-                    images.map(async (item) => {
-                        if (item.image_id) {
-                            try {
-                                const pixabayApiKey = import.meta.env.VITE_PIXABAY_API_KEY;
-                                const pixabayUrl = `https://pixabay.com/api/?key=${pixabayApiKey}&id=${item.image_id}`;
-                                const response = await fetch(pixabayUrl);
-                                const pixabayData = await response.json();
-                                if (pixabayData.hits && pixabayData.hits.length > 0) {
-                                    item.imageUrl = pixabayData.hits[0].webformatURL;
-                                    item.thumbnailUrl = pixabayData.hits[0].previewURL;
-                                    item.tag = pixabayData.hits[0].tags || item.tag || 'ไม่ระบุชื่อสินค้า';
-                                } else {
-                                    item.imageUrl = 'https://via.placeholder.com/400x300';
-                                    item.thumbnailUrl = 'https://via.placeholder.com/150x100';
-                                }
-                            } catch (imageError) {
-                                console.warn('Failed to fetch image:', imageError);
-                                item.imageUrl = 'https://via.placeholder.com/400x300';
-                                item.thumbnailUrl = 'https://via.placeholder.com/150x100';
-                            }
+                    orderItems.map(async (item) => {
+                        // *** การเปลี่ยนแปลงตรงนี้: แปลง type ให้เป็น 'image' ถ้าเข้าเงื่อนไข ***
+                        let mediaType = item.type; 
+                        if (['all', 'photo', 'illustration', 'vector'].includes(mediaType)) {
+                            mediaType = 'image';
+                        }
+                        // ***************************************************************
+                        //console.log("Processing item:", item);
+                        const pixabayId = item.image_id; 
+
+                        if (!pixabayId || !mediaType) {
+                            console.warn("Item missing pixabayId or type, skipping:", item);
+                            return null;
+                        }
+
+                        let pixabayUrl = '';
+                        if (mediaType === 'film') { 
+                            pixabayUrl = `https://pixabay.com/api/videos/?key=${PIXABAY_API_KEY}&id=${pixabayId}`;
+                        } else if (mediaType === 'image') { 
+                            pixabayUrl = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&id=${pixabayId}`;
                         } else {
-                            item.imageUrl = 'https://via.placeholder.com/400x300';
-                            item.thumbnailUrl = 'https://via.placeholder.com/150x100';
+                            console.warn(`Unknown media type: ${mediaType} for ID: ${pixabayId}, skipping.`, item);
+                            return null;
+                        }
+
+                        try {
+                            const response = await fetch(pixabayUrl);
+                            const pixabayData = await response.json();
+                            
+                            if (pixabayData.hits && pixabayData.hits.length > 0) {
+                                const hit = pixabayData.hits[0];
+                                item.tag = hit.tags || item.tag || 'ไม่ระบุชื่อสินค้า';
+                                item.type = mediaType; // ใช้ mediaType ที่ถูกแปลงแล้ว
+                                item.pixabayId = pixabayId; 
+
+                                if (mediaType === 'film') { 
+                                    item.previewUrl = hit.videos.tiny.url;
+                                    item.thumbnailUrl = hit.videos.tiny.thumbnail;
+                                    item.fullUrl = hit.videos.large.url; 
+                                    item.duration = hit.duration;
+                                    item.views = hit.views;
+                                    item.downloads = hit.downloads;
+                                    item.likes = hit.likes;
+                                } else { // mediaType === 'image'
+                                    item.previewUrl = hit.previewURL;
+                                    item.thumbnailUrl = hit.webformatURL;
+                                    item.fullUrl = hit.largeImageURL; 
+                                    item.views = hit.views;
+                                    item.downloads = hit.downloads;
+                                    item.likes = hit.likes;
+                                }
+                                //console.log(`Processed item for ID: ${pixabayId}, type: ${mediaType}`, item);
+                            } else {
+                                console.warn(`No Pixabay data found for ID: ${pixabayId}, type: ${mediaType}`);
+                                item.previewUrl = 'https://via.placeholder.com/400x300?text=No+Preview';
+                                item.thumbnailUrl = 'https://via.placeholder.com/150x100?text=No+Thumbnail';
+                                item.fullUrl = '#';
+                                item.type = mediaType;
+                                item.tag = item.tag || 'ข้อมูลไม่พร้อมใช้งาน';
+                                item.pixabayId = pixabayId;
+                            }
+                        } catch (mediaApiError) {
+                            console.warn(`Failed to fetch media from Pixabay for ID: ${pixabayId}, type: ${mediaType}`, mediaApiError);
+                            item.previewUrl = 'https://via.placeholder.com/400x300?text=Error+Loading';
+                            item.thumbnailUrl = 'https://via.placeholder.com/150x100?text=Error+Loading';
+                            item.fullUrl = '#';
+                            item.type = mediaType;
+                            item.tag = item.tag || 'เกิดข้อผิดพลาด';
+                            item.pixabayId = pixabayId;
                         }
                         return item;
                     })
                 );
-                images = processedItems;
+                allMediaItems = processedItems.filter(item => item !== null);
             }
         } catch (err) {
             console.error('Error fetching orders:', err);
         } finally {
             loading = false;
+            updateDisplayedMedia();
         }
     }
+
+    function updateDisplayedMedia() {
+        if (selectedMediaType === 'film') { 
+            displayedMedia = allMediaItems.filter(item => item.type === 'film');
+        } else { 
+            displayedMedia = allMediaItems.filter(item => item.type === 'image');
+        }
+    }
+
+    function handleTabChange(event) {
+        selectedMediaType = event.detail;
+    }
+
+    $: selectedMediaType, updateDisplayedMedia();
 
     onMount(() => {
         checkUser().then(() => fetchOrders());
         
-        scheduleLayoutRecalculation(); // Initial layout
+        scheduleLayoutRecalculation();
         if (typeof window !== 'undefined') {
             window.addEventListener('resize', handleResize);
         }
@@ -160,73 +231,55 @@
         };
     });
 
-    // Recalculate layout if the images array changes
-    $: if (images && galleryContainer) {
+    $: if (displayedMedia && galleryContainer) {
         scheduleLayoutRecalculation();
     }
 </script>
 
 <div class="min-h-screen bg-white">
-    <!-- Header -->
     <div class="bg-white border-b border-gray-100 py-6">
         <div class="max-w-6xl mx-auto px-4">
-            <h1 class="text-2xl font-light text-gray-800 mb-2 mt-4">รูปภาพของฉัน</h1>
-            <p class="text-gray-500 text-sm">รูปภาพที่ซื้อแล้วทั้งหมด</p>
+            <h1 class="text-2xl font-light text-gray-800 mb-2 mt-4">สื่อของฉัน</h1>
+            <p class="text-gray-500 text-sm">รูปภาพและวิดีโอที่ซื้อแล้วทั้งหมด</p>
+
+            <MediaTabs
+                selectedMediaType={selectedMediaType}
+                on:change={handleTabChange}
+            />
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="max-w-6xl mx-auto px-4 py-8">
         {#if loading}
             <div class="flex justify-center items-center py-20">
                 <Loading />
             </div>
-        {:else if images.length === 0}
+        {:else if displayedMedia.length === 0}
             <div class="text-center py-20">
                 <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
+                    {#if selectedMediaType === 'image'}
+                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <h3 class="text-lg font-medium text-gray-800 mb-2 mt-4">ยังไม่มีรูปภาพ</h3>
+                        <p class="text-gray-500">คุณยังไม่ได้ซื้อรูปภาพใดๆ</p>
+                    {:else}
+                        <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4.025a1 1 0 001.555.832l3-2.004a1 1 0 000-1.664l-3-2.004z" clip-rule="evenodd" /></svg>
+                        <h3 class="text-lg font-medium text-gray-800 mb-2 mt-4">ยังไม่มีวิดีโอ</h3>
+                        <p class="text-gray-500">คุณยังไม่ได้ซื้อวิดีโอใดๆ</p>
+                    {/if}
                 </div>
-                <h3 class="text-lg font-medium text-gray-800 mb-2">ยังไม่มีรูปภาพ</h3>
-                <p class="text-gray-500">คุณยังไม่ได้ซื้อรูปภาพใดๆ</p>
             </div>
         {:else}
-            <!-- Images Masonry Gallery -->
             <div bind:this={galleryContainer} class="masonry-container relative">
-                {#each images as image (image.image_id)}
-                    <div class="masonry-item mb-5">
-                        <div class="group bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-gray-200 hover:shadow-lg transition-all duration-300">
-                            <div class="relative overflow-hidden">
-                                <img
-                                    src={image.imageUrl || image.thumbnailUrl}
-                                    alt={image.tag || 'รูปภาพ'}
-                                    class="w-full h-auto object-cover group-hover:scale-[1.02] transition-transform duration-500"
-                                    on:load={handleImageLoad}
-                                    loading="lazy"
-                                />
-                                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                                    <button 
-                                        class="w-12 h-12 bg-white/90 backdrop-blur-sm text-gray-700 rounded-full flex items-center justify-center hover:bg-white hover:text-blue-600 transition-colors shadow-lg"
-                                        on:click={() => window.open(image.imageUrl, '_blank')}
-                                        aria-label="ดาวน์โหลดรูปภาพ"
-                                    >
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                     
-                        </div>
-                    </div>
+                {#each displayedMedia as media (media.pixabayId)}
+                    <MediaItem media={media} on:load={handleMediaItemLoad} />
                 {/each}
             </div>
             
-            <!-- Images Count -->
             <div class="text-center mt-8 pt-8 border-t border-gray-100">
                 <p class="text-sm text-gray-500">
-                    รูปภาพทั้งหมด {images.length} รูป
+                    {selectedMediaType === 'film' ? 'วิดีโอ' : 'รูปภาพ'}ทั้งหมด {displayedMedia.length} {selectedMediaType === 'film' ? 'วิดีโอ' : 'รูป'}
                 </p>
             </div>
         {/if}

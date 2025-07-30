@@ -6,7 +6,7 @@
 
   // ตัวแปรสำหรับเก็บข้อมูลผู้ใช้จาก store
   let userProfile = null;
-
+  let isLoading = false;
   // ติดตามการเปลี่ยนแปลงของ user store
   const unsubscribe = authStore.subscribe(storeState => {
     if (storeState && storeState.user) {
@@ -38,11 +38,14 @@
 
   async function logout() {
     try {
+      isLoading = true;
       await supabase.auth.signOut();
       authStore.clearUser();
       goto('/login');
     } catch (error) {
       alert('เกิดข้อผิดพลาดในการออกจากระบบ: ' + error.message);
+    }finally {
+      isLoading = false;
     }
   }
 
@@ -184,7 +187,7 @@
                   </svg>
                 </div>
                 <div class="ml-4 text-left">
-                  <h4 class="font-medium text-gray-900">ออกจากระบบ</h4>
+                  <h4 class="font-medium text-gray-900">{isLoading ? 'กำลังออกจากบัญชี...' : 'ออกจากบัญชี '}</h4>
                   <p class="text-sm text-gray-500">ออกจากบัญชี</p>
                 </div>
               </button>

@@ -2,7 +2,8 @@
   import { page } from "$app/stores"; // แก้ไข: import จาก $app/stores แทน $app/state
   import { onMount, onDestroy } from "svelte";
   import MasonryGallery from "$lib/component/MasonryGallery.svelte";
-
+  import { errorAlert } from "$lib/alertUtils";
+  import Loading from "$lib/component/Loading.svelte";
   // $: ทำให้ query อัปเดตอัตโนมัติเมื่อ $page.url.searchParams เปลี่ยนแปลง
   $: query = $page.url.searchParams.get('q'); 
 
@@ -13,6 +14,7 @@
   let currentPage = 1;
   let loadingMore = false;
   let hasMore = true; // Assume there might be more initially
+  let isLoading = false;
 
   async function fetchGoods(pageToFetch = 1) {
     if (!query) { // Don't fetch if there's no query
@@ -31,6 +33,7 @@
     goods.error = null; // Clear previous errors for the current attempt
 
     try {
+      isLoading = true; // Set loading state
       const apiUrl = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(query)}&image_type=photo&per_page=20&safesearch=true&page=${pageToFetch}`;
       const respond = await fetch(apiUrl);
 
@@ -71,6 +74,7 @@
       hasMore = false; // Stop trying on catch
     } finally {
       loadingMore = false;
+      isLoading = false; // Clear loading state
     }
   }
 
@@ -99,15 +103,19 @@
   }
 
   onMount(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+      window.addEventListener('scroll', handleScroll);
+      return () => {
+        window.removeEventListener('scroll', handleScroll);
+      };
   });
 </script>
 
 <div class="p-10">
+  {#if isLoading}
+    <Loading />
+  {:else}
     <h1 class="text-4xl py-5">{goods.total} รูปภาพฟรีของ {query}</h1>
+  {/if}
   {#if goods.error}
     <p class="text-red-500">Error: {goods.error}</p>
   {/if}

@@ -9,13 +9,14 @@ export async function POST({ request }) {
         return json({ message: "ข้อมูลที่ส่งมาไม่อยู่ในรูปแบบ JSON ที่ถูกต้อง" }, { status: 400 });
     }
 
-    const { orderId, imageId, price } = requestBody;
+    const { orderId, imageId, price , type} = requestBody;
 
     // --- Input Validation ---
     const missingFields = [];
     if (orderId === undefined) missingFields.push("orderId");
     if (imageId === undefined) missingFields.push("imageId"); // Assuming imageId can be 0, so check for undefined
     if (price === undefined) missingFields.push("price");
+    if (type === undefined) missingFields.push("type"); // Assuming type is a required field
 
     if (missingFields.length > 0) {
         return json({ message: `กรุณาระบุข้อมูลที่จำเป็นให้ครบถ้วน: ${missingFields.join(', ')}` }, { status: 400 });
@@ -32,6 +33,7 @@ export async function POST({ request }) {
     if (typeof price !== 'number' || price < 0) {
         return json({ message: "price ต้องเป็นตัวเลขที่ไม่ติดลบ" }, { status: 400 });
     }
+
     // --- End Input Validation ---
 
 
@@ -45,6 +47,7 @@ export async function POST({ request }) {
                 order_id: orderId,    // Maps to your 'order_id' column (foreign key to orders table)
                 image_id: imageId,    // Maps to your 'image_id' or 'product_id' column
                 price: price,
+                type: type,           // Maps to your 'type' column, if applicable
                 // created_at: new Date().toISOString(), // Optional: if your table doesn't auto-set timestamps
             }
         ])

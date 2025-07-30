@@ -1,8 +1,6 @@
 <script>
-  import { goto } from '$app/navigation';
   import { supabase } from '$lib/supabaseClient';
-  import { StoreUser as authStore } from '$lib/stores/userStore'
-
+  import { successAlert } from '$lib/alertUtils';
   let username = '';
   let email = '';
   let password = '';
@@ -41,7 +39,7 @@
       if (error){
         errorMessage = 'เกิดข้อผิดพลาดในการสร้างบัญชี: ' + error.message;
       }else{
-        alert('สร้างบัญชีสำเร็จ')
+        successAlert('สร้างบัญชีสำเร็จ! กรุณาเข้าสู่ระบบ');
       }
 
     } catch (error) {

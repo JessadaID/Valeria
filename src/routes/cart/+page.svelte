@@ -5,6 +5,7 @@
   import { cartStore } from "$lib/stores/cartStore";
   import { StoreUser } from "$lib/stores/userStore";
   import { formatFileSize } from "$lib/formatFilesize";
+
   let itemcart = [];
 
   const PRICE = 29;
@@ -23,6 +24,7 @@
 
   async function insertOrder(){
     try {
+      isLoading = true;
       const response = await fetch('/api/v1/order', {
         method: 'POST',
         headers: {
@@ -58,11 +60,14 @@
     } catch (error) {
       console.error('Error inserting order item:', error);
       errorAlert('เกิดข้อผิดพลาดในการเพิ่มรายการสั่งซื้อ');
+    }finally{
+      isLoading = false;
     }
   }
 
   async function insertOrderItem(orderId, item) {
     try {
+      isLoading = true;
       const response = await fetch('/api/v1/orderitems', {
         method: 'POST',
         headers: {
@@ -72,6 +77,7 @@
           orderId,
           imageId: item.id,
           price: item.price || PRICE,
+          type: item.type || 'photo',
         }),
       });
 
@@ -82,6 +88,8 @@
     } catch (error) {
       console.error('Error inserting order item:', error);
       errorAlert('เกิดข้อผิดพลาดในการเพิ่มรายการสั่งซื้อ');
+    }finally{
+      isLoading = false;
     }
   }
 
@@ -325,7 +333,11 @@
               class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
             >
               {#if itemcart.length > 0}
-                ชำระเงินและดาวน์โหลด
+                {#if isLoading}
+                  <span>กำลังดำเนินการ...</span>
+                {:else}
+                  <span>ดำเนินการชำระเงิน</span>
+                {/if}
               {:else}
                 ตะกร้าว่างเปล่า
               {/if}
