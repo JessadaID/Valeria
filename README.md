@@ -10,12 +10,15 @@
 
 ## สิ่งที่ได้
 ฝึกการใช้ 
-1. LocalStoreage 
+1. LocalStoreage (ใช้ในตระกร้าสินค้า)
+![cart](./static/github-preview/cart.png)
 2. Supabase 
-3. Qr-payment 
+3. Qr-payment (ใช้สำหรับจำลองการชำระเงิน promtpay)
 4. Authentication-Supabase 
-5. RestAPI-Pixabey 
-6. Layout-MasonryGallery 
-7. Floating-Alert 
-8. Carosel-Autoslide
+5. RestAPI-Pixabey (เป็น api สำหรับการดึงข้อมูลจาก pixabay)
+6. Layout-MasonryGallery (เป็นการแสดงความสูงของรูปตามความเป็นจริงให้สมส่วน)
+![layout](./static/github-preview/Masonry.png)
+7. Floating-Alert (ใช้สำหรับการแจ้งเตือน เป็น pop up ขึ้นมาด้านล่างของหน้าจอ)
+![alert](./static/github-preview/Alert.png)
+8. Carosel-Autoslide (แสดงผลหน้าหลักของเว็บไซต์)
 
