@@ -23,6 +23,7 @@
   const unsubscribeAuth = authStore.subscribe(storeState => {
     if (storeState && storeState.user) {
       userProfile = storeState.user;
+      console.log("User profile updated:", userProfile);
     } else {
       userProfile = null;
     }
@@ -96,7 +97,6 @@
     
     <!-- Auth Links -->
     <div class="flex space-x-4">
-      <a href="" class="text-xs text-slate-600 hover:text-violet-600 border-r-3 border-violet-500 pr-4">Thai</a>
       {#if userProfile}
         <a href="/profile" class="text-xs text-slate-600 hover:text-violet-600">โปรไฟล์ <b class='font-bold'>{userProfile.user_metadata.username|| 'N/A'}</b></a>
       {:else}

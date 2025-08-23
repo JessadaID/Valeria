@@ -24,7 +24,6 @@
     <div class="group bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-gray-200 hover:shadow-lg transition-all duration-300">
         <div class="relative overflow-hidden">
             {#if media.type === 'video'}
-                <a href="/product?id={media.pixabayId}&type=video">
                     <img
                         src={media.thumbnailUrl}
                         alt={media.tag || 'วิดีโอ'}
@@ -38,10 +37,8 @@
                     <div class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-md">
                         {convertSecondsToMinutes(media.duration)}
                     </div>
-                </a>
             {:else}
                 <div class="relative">
-                    <a href="/product?id={media.pixabayId}&type=image">
                         <img
                             src={media.thumbnailUrl || media.previewUrl}
                             alt={media.tag || 'รูปภาพ'}
@@ -49,7 +46,6 @@
                             on:load={handleMediaLoad}
                             loading="lazy"
                         />
-                    </a>
                     <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
                     </div>
                     <a
