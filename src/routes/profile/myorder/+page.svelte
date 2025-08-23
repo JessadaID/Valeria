@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { supabase } from '$lib/supabaseClient';
-  import Loading from '$lib/component/Loading.svelte';
+    import Loading from '$lib/component/Loading.svelte';
 
     let orders = [];
     let loading = true;
@@ -18,7 +18,6 @@
         loading = true;
         error = null;
 
-        await checkUser();
         if (!currentUser) return;
         
         try {
@@ -84,10 +83,6 @@
     onMount(() => {
         checkUser().then(() => fetchOrders());
     });
-
-    $: if (currentUser?.id && orders.length === 0 && !loading && !error) {
-        fetchOrders();
-    }
 
     function toggleOrderExpansion(orderId) {
         if (expandedOrders.has(orderId)) {
