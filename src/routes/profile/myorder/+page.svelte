@@ -40,13 +40,25 @@
                                     if (item.image_id) {
                                         try {
                                             const pixabayApiKey = import.meta.env.VITE_PIXABAY_API_KEY;
-                                            const pixabayUrl = `https://pixabay.com/api/?key=${pixabayApiKey}&id=${item.image_id}`;
+                                            // ตรวจสอบประเภทของสินค้าจากฐานข้อมูล (item.type)
+                                            const isVideo = item.type === 'film';
+                                            const endpoint = isVideo ? 'videos/' : '';
+                                            const pixabayUrl = `https://pixabay.com/api/${endpoint}?key=${pixabayApiKey}&id=${item.image_id}`;
                                             const response = await fetch(pixabayUrl);
                                             const pixabayData = await response.json();
                                             if (pixabayData.hits && pixabayData.hits.length > 0) {
-                                                item.imageUrl = pixabayData.hits[0].webformatURL;
-                                                item.thumbnailUrl = pixabayData.hits[0].previewURL;
-                                                item.tag = pixabayData.hits[0].tags || item.tag || 'ไม่ระบุชื่อสินค้า';
+                                                const hit = pixabayData.hits[0];
+                                                item.tag = hit.tags || item.tag || 'ไม่ระบุชื่อสินค้า';
+
+                                                if (isVideo) {
+                                                    // สำหรับวิดีโอ: สร้าง URL ของ thumbnail จาก picture_id
+                                                    item.imageUrl = hit.videos?.tiny?.thumbnail;
+                                                    item.thumbnailUrl = hit.videos?.tiny?.thumbnail;
+                                                } else {
+                                                    // สำหรับรูปภาพ: ใช้ URL ที่ได้รับมาโดยตรง
+                                                    item.imageUrl = hit.webformatURL;
+                                                    item.thumbnailUrl = hit.previewURL;
+                                                }
                                             } else {
                                                 item.imageUrl = 'https://via.placeholder.com/400x300';
                                                 item.thumbnailUrl = 'https://via.placeholder.com/150x100';
@@ -77,6 +89,7 @@
             console.error('Error fetching orders:', err);
         } finally {
             loading = false;
+            console.log("Orders loaded:", orders);
         }
     }
 
