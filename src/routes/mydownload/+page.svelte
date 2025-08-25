@@ -128,7 +128,7 @@
             // *** การเปลี่ยนแปลงตรงนี้: แปลง type ให้เป็น 'image' ถ้าเข้าเงื่อนไข ***
             let mediaType = item.type;
             if (
-              ["all", "photo", "illustration", "vector"].includes(mediaType)
+              ["all", "photo", "illustration", "vector/svg"].includes(mediaType)
             ) {
               mediaType = "image";
             }
