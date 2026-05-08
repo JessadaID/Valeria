@@ -1,24 +1,98 @@
-## Valeria เป็นเว็บขายภาพ (จำลอง)
-    สร้างโดย JessadaId
-เป็นเว็บขายภาพที่ดึงข้อมูลมาจาก pixabay (API) , โดยมีการจัด Layout การแสดงผลโดยใช้ Masonry Layout , ส่วนการยืนยันตัวตนหรือการ login ใช้ supabase auth , ตระกร้า (Cart) ใช้ LocalStorage , Qr-payment เป็น lib ในการสร้าง qr-code เพื่อการชำระเงิน (แต่ในเว็บใช้สำหรับแสดง qr-code เพื่อแสกนจ่ายไป promtpay ไม่ต้องจ่ายจริง)
+# Valeria — Simulated Stock Photo Marketplace
 
-## Demo
- URL : [Valeria](https://valeria-sand.vercel.app/)
+> A simulated e-commerce platform for browsing and purchasing stock photography, built with SvelteKit and integrated with third-party APIs and authentication services.
+
+**Author:** JessadaID &nbsp;|&nbsp; **Live Demo:** [valeria-sand.vercel.app](https://valeria-sand.vercel.app/)
+
+---
+
+## Overview
+
+Valeria is a front-end focused project that simulates a stock photo marketplace. Users can browse high-quality images fetched from the **Pixabay API**, add items to a shopping cart, authenticate securely, and simulate a payment flow using a PromptPay QR code — all without real transactions.
+
+The project was developed to deepen practical skills in modern front-end technologies, third-party service integration, and responsive UI design.
+
+---
 
 ## Preview
-![Valeria](./static/image.png)
 
-## สิ่งที่ได้
-ฝึกการใช้ 
-1. LocalStoreage (ใช้ในตระกร้าสินค้า)
-![cart](./static/github-preview/cart.png)
-2. Supabase 
-3. Qr-payment (ใช้สำหรับจำลองการชำระเงิน promtpay)
-4. Authentication-Supabase 
-5. RestAPI-Pixabey (เป็น api สำหรับการดึงข้อมูลจาก pixabay)
-6. Layout-MasonryGallery (เป็นการแสดงความสูงของรูปตามความเป็นจริงให้สมส่วน)
-![layout](./static/github-preview/Masonry.png)
-7. Floating-Alert (ใช้สำหรับการแจ้งเตือน เป็น pop up ขึ้นมาด้านล่างของหน้าจอ)
-![alert](./static/github-preview/Alert.png)
-8. Carosel-Autoslide (แสดงผลหน้าหลักของเว็บไซต์)
+![Valeria Preview](./static/image.png)
 
+---
+
+## Tech Stack
+
+| Category | Technology |
+|---|---|
+| Framework | SvelteKit 2 |
+| Language | JavaScript / TypeScript |
+| Styling | Tailwind CSS v4 |
+| Authentication | Supabase Auth |
+| Database / BaaS | Supabase (PostgreSQL) |
+| External API | Pixabay REST API |
+| Payment Simulation | promptpay-qr / qrcode |
+| Carousel | Embla Carousel |
+| Build Tool | Vite 6 |
+| Deployment | Vercel |
+
+---
+
+## Key Features
+
+### 🖼️ Masonry Gallery Layout
+Images are displayed using a **Masonry Layout**, preserving each photo's natural aspect ratio for a visually balanced and professional browsing experience.
+
+![Masonry Layout](./static/github-preview/Masonry.png)
+
+### 🛒 Shopping Cart (LocalStorage)
+Cart state is persisted via **LocalStorage**, allowing users to retain their selections across page refreshes without requiring a backend session.
+
+![Cart](./static/github-preview/cart.png)
+
+### 🔐 Authentication
+User sign-in and session management are handled by **Supabase Auth**, providing secure and scalable identity management out of the box.
+
+### 💳 Payment Simulation (PromptPay QR)
+At checkout, a **PromptPay QR code** is dynamically generated using the `promptpay-qr` library. This simulates a real payment flow without processing any actual transactions.
+
+### 🔔 Floating Alert Notifications
+A custom **floating alert system** displays contextual feedback messages as pop-ups at the bottom of the screen, improving the overall user experience.
+
+![Alert](./static/github-preview/Alert.png)
+
+### 🎠 Auto-Slide Carousel
+The homepage features an **auto-sliding carousel** powered by Embla Carousel, providing an engaging and modern landing experience.
+
+---
+
+## Skills Demonstrated
+
+This project was built to practice and demonstrate the following competencies:
+
+- Consuming and integrating a **REST API** (Pixabay)
+- Implementing **BaaS authentication** with Supabase
+- Managing client-side state with **LocalStorage**
+- Building dynamic, responsive **UI layouts** (Masonry Grid)
+- Generating and rendering **QR codes** for payment simulation
+- Deploying a production-ready application on **Vercel**
+
+---
+
+## Getting Started
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+```
+
+---
+
+## License
+
+This project is for **portfolio and demonstration purposes only**. All images are sourced from the [Pixabay API](https://pixabay.com/api/docs/) under their respective licenses.
