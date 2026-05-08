@@ -39,28 +39,28 @@ The project was developed to deepen practical skills in modern front-end technol
 
 ## Key Features
 
-### 🖼️ Masonry Gallery Layout
+### Masonry Gallery Layout
 Images are displayed using a **Masonry Layout**, preserving each photo's natural aspect ratio for a visually balanced and professional browsing experience.
 
 ![Masonry Layout](./static/github-preview/Masonry.png)
 
-### 🛒 Shopping Cart (LocalStorage)
+### Shopping Cart (LocalStorage)
 Cart state is persisted via **LocalStorage**, allowing users to retain their selections across page refreshes without requiring a backend session.
 
 ![Cart](./static/github-preview/cart.png)
 
-### 🔐 Authentication
+### Authentication
 User sign-in and session management are handled by **Supabase Auth**, providing secure and scalable identity management out of the box.
 
-### 💳 Payment Simulation (PromptPay QR)
+### Payment Simulation (PromptPay QR)
 At checkout, a **PromptPay QR code** is dynamically generated using the `promptpay-qr` library. This simulates a real payment flow without processing any actual transactions.
 
-### 🔔 Floating Alert Notifications
+### Floating Alert Notifications
 A custom **floating alert system** displays contextual feedback messages as pop-ups at the bottom of the screen, improving the overall user experience.
 
 ![Alert](./static/github-preview/Alert.png)
 
-### 🎠 Auto-Slide Carousel
+### Auto-Slide Carousel
 The homepage features an **auto-sliding carousel** powered by Embla Carousel, providing an engaging and modern landing experience.
 
 ---
