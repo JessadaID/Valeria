@@ -4,7 +4,7 @@
   import MasonryGallery from "$lib/component/MasonryGallery.svelte";
 
   export let data;
-  $: ({ goods } = data);
+  $: ({ goods, randomImages } = data);
 
   const categories = [
     {
@@ -43,7 +43,7 @@
 <div class="min-h-screen bg-gray-50/30">
   <div class="max-w-7xl mx-auto px-6 lg:px-8 py-12">
     <div class="flex flex-col lg:flex-row gap-8">
-      <SidebarCategories {categories} />
+      <SidebarCategories {categories} {randomImages} />
 
       <main class="flex-1">
         <div class="mb-12">
