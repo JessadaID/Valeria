@@ -51,7 +51,6 @@
 
         itemcart = [];
         cartStore.clearCart();
-        localStorage.setItem("cartitem", JSON.stringify([]));
       }
     } catch (error) {
       console.error("Error inserting order item:", error);
@@ -92,28 +91,10 @@
   }
 
   onMount(() => {
-    const storedCart = localStorage.getItem("cartitem");
-
-    if (storedCart) {
-      try {
-        const parsedItems = JSON.parse(storedCart);
-        if (Array.isArray(parsedItems)) {
-          itemcart = parsedItems;
-        } else {
-          console.warn(
-            "Cart data in localStorage is not an array. Resetting cart.",
-          );
-          itemcart = [];
-          localStorage.setItem("cartitem", JSON.stringify([]));
-        }
-      } catch (error) {
-        console.error("Error parsing cart items from localStorage:", error);
-        itemcart = [];
-        localStorage.setItem("cartitem", JSON.stringify([]));
-      }
-    } else {
-      itemcart = [];
-    }
+    const unsubscribe = cartStore.subscribe(items => {
+      itemcart = items;
+    });
+    return unsubscribe;
   });
 
   function removeItem(itemId) {

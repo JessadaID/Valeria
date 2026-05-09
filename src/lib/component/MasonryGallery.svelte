@@ -1,14 +1,14 @@
 <script>
-  import { goto } from '$app/navigation';
-  import { onMount, tick } from 'svelte';
-  import { formatNumber } from '$lib/formatNumber';
-  import { cartStore } from '$lib/stores/cartStore';
+  import { goto } from "$app/navigation";
+  import { onMount, tick } from "svelte";
+  import { formatNumber } from "$lib/formatNumber";
+  import { cartStore } from "$lib/stores/cartStore";
+
   export let goods = [];
 
   let galleryContainer;
   let resizeTimeout;
   let layoutTimeout;
-  
 
   function scheduleLayoutRecalculation() {
     clearTimeout(layoutTimeout);
@@ -19,7 +19,7 @@
   }
 
   function getColumnCount() {
-    if (typeof window === 'undefined') return 3;
+    if (typeof window === "undefined") return 3;
     const width = window.innerWidth;
     if (width >= 1280) return 4;
     if (width >= 1024) return 3;
@@ -31,22 +31,23 @@
   function initMasonryLayout() {
     if (!galleryContainer) return;
 
-    const items = Array.from(galleryContainer.querySelectorAll('.masonry-item'));
+    const items = Array.from(
+      galleryContainer.querySelectorAll(".masonry-item"),
+    );
 
-
-    if (typeof window !== 'undefined' && window.innerWidth <= 640) {
-      galleryContainer.style.height = 'auto';
-      items.forEach(item => {
-        item.style.position = 'relative';
-        item.style.left = 'auto';
-        item.style.top = 'auto';
-        item.style.width = '100%';
+    if (typeof window !== "undefined" && window.innerWidth <= 640) {
+      galleryContainer.style.height = "auto";
+      items.forEach((item) => {
+        item.style.position = "relative";
+        item.style.left = "auto";
+        item.style.top = "auto";
+        item.style.width = "100%";
       });
       return;
     }
-    
+
     if (items.length === 0) {
-      galleryContainer.style.height = '0px';
+      galleryContainer.style.height = "0px";
       return;
     }
 
@@ -54,20 +55,18 @@
     const columns = getColumnCount();
     const columnHeights = new Array(columns).fill(0);
 
-    items.forEach(item => {
+    items.forEach((item) => {
       const itemHeight = item.offsetHeight;
       if (itemHeight === 0) return;
 
-      const shortestColumnIndex = columnHeights.indexOf(Math.min(...columnHeights));
-      
-      item.style.position = 'absolute';
+      const shortestColumnIndex = columnHeights.indexOf(
+        Math.min(...columnHeights),
+      );
+
+      item.style.position = "absolute";
       item.style.left = `${shortestColumnIndex * (100 / columns)}%`;
       item.style.top = `${columnHeights[shortestColumnIndex]}px`;
-      item.style.width = `calc(${(100 / columns)}% - ${gap * (columns - 1) / columns}px)`;
-      
-
-
-
+      item.style.width = `calc(${100 / columns}% - ${(gap * (columns - 1)) / columns}px)`;
 
       columnHeights[shortestColumnIndex] += itemHeight + gap;
     });
@@ -89,35 +88,33 @@
 
   onMount(() => {
     scheduleLayoutRecalculation();
-    if (typeof window !== 'undefined') {
-      window.addEventListener('resize', handleResize);
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", handleResize);
     }
     return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('resize', handleResize);
+      if (typeof window !== "undefined") {
+        window.removeEventListener("resize", handleResize);
       }
       clearTimeout(resizeTimeout);
       clearTimeout(layoutTimeout);
     };
   });
 
-
   $: if (goods && galleryContainer) {
     scheduleLayoutRecalculation();
   }
 
-
-
-  function ViewDetail (id) {
+  function ViewDetail(id) {
     goto(`/product?id=${id}`);
   }
-
 </script>
 
 <div bind:this={galleryContainer} class="masonry-container relative">
   {#each goods as good (good.id)}
     <div class="masonry-item mb-5">
-      <div class="group bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-gray-200 hover:shadow-lg transition-all duration-300">
+      <div
+        class="group bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-gray-200 hover:shadow-lg transition-all duration-300"
+      >
         <div class="relative overflow-hidden">
           <img
             src={good.webformatURL}
@@ -126,20 +123,62 @@
             on:load={handleImageLoad}
             loading="lazy"
           />
-          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100 ">
+          <div
+            class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100"
+          >
             <div class="flex gap-3">
-              <button on:click={() => cartStore.addItem(good)} class="w-10 h-10 bg-white/90 backdrop-blur-sm hover:text-violet-500 text-gray-700 rounded-full flex items-center justify-center hover:bg-white transition-colors" aria-label="Download">
-                <svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-shopping-cart-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M12.5 17h-6.5v-14h-2" /><path d="M6 5l14 1l-.86 6.017m-2.64 .983h-10.5" /><path d="M16 19h6" /><path d="M19 16v6" /></svg>
+              <button
+                on:click={() => cartStore.addItem(good)}
+                class="w-10 h-10 bg-white/90 backdrop-blur-sm hover:text-violet-500 text-gray-700 rounded-full flex items-center justify-center hover:bg-white transition-colors"
+                aria-label="Download"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="icon icon-tabler icons-tabler-outline icon-tabler-shopping-cart-plus"
+                  ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
+                    d="M4 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"
+                  /><path d="M12.5 17h-6.5v-14h-2" /><path
+                    d="M6 5l14 1l-.86 6.017m-2.64 .983h-10.5"
+                  /><path d="M16 19h6" /><path d="M19 16v6" /></svg
+                >
               </button>
-              <button on:click={() => ViewDetail(good.id)} class="w-10 h-10 bg-white/90 backdrop-blur-sm text-gray-700 rounded-full flex items-center justify-center hover:bg-white hover:text-red-500 transition-colors" aria-label="Like">
-                <svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>
+              <button
+                on:click={() => ViewDetail(good.id)}
+                class="w-10 h-10 bg-white/90 backdrop-blur-sm text-gray-700 rounded-full flex items-center justify-center hover:bg-white hover:text-red-500 transition-colors"
+                aria-label="Like"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="icon icon-tabler icons-tabler-outline icon-tabler-download"
+                  ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
+                    d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"
+                  /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg
+                >
               </button>
             </div>
           </div>
         </div>
         <div class="p-4">
           <div class="flex items-center justify-between mb-3">
-            <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-full">
+            <span
+              class="inline-flex items-center px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-full"
+            >
               {good.type}
             </span>
             <span class="text-xs text-gray-500">
@@ -148,11 +187,58 @@
           </div>
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4 text-xs text-gray-500">
-              <span class="flex items-center gap-1" title="Downloads"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>{formatNumber(good.downloads)}</span>
-              <span class="flex items-center gap-1" title="Likes"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>{formatNumber(good.likes)}</span>
-              <span class="flex items-center gap-1" title="Views"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>{formatNumber(good.views)}</span>
+              <span class="flex items-center gap-1" title="Downloads"
+                ><svg
+                  class="w-3 h-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  ><path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  /></svg
+                >{formatNumber(good.downloads)}</span
+              >
+              <span class="flex items-center gap-1" title="Likes"
+                ><svg
+                  class="w-3 h-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  ><path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  /></svg
+                >{formatNumber(good.likes)}</span
+              >
+              <span class="flex items-center gap-1" title="Views"
+                ><svg
+                  class="w-3 h-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  ><path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  /><path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  /></svg
+                >{formatNumber(good.views)}</span
+              >
             </div>
-            <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-50 text-green-700 rounded-full">ฟรี</span>
+            <span
+              class="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-50 text-green-700 rounded-full"
+              >ฟรี</span
+            >
           </div>
         </div>
       </div>
@@ -164,26 +250,27 @@
   .masonry-container {
     position: relative;
   }
-  
+
   .masonry-item {
-    transition: top 0.3s ease, left 0.3s ease, width 0.3s ease; 
+    transition:
+      top 0.3s ease,
+      left 0.3s ease,
+      width 0.3s ease;
   }
-  
-  
+
   @media (max-width: 640px) {
     .masonry-container {
       display: flex;
       flex-direction: column;
-      gap: 1.25rem; 
-      height: auto !important; 
+      gap: 1.25rem;
+      height: auto !important;
     }
     .masonry-item {
       width: 100% !important;
-      position: relative !important; 
+      position: relative !important;
       left: auto !important;
       top: auto !important;
-      margin-bottom: 0; 
+      margin-bottom: 0;
     }
-    
   }
 </style>
