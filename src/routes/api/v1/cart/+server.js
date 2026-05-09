@@ -9,7 +9,6 @@ export async function GET({ url }) {
     }
 
     try {
-        // Get cart items from Redis using email as key
         const cartData = await redis.get(`cart:${email}`);
         const items = cartData ? JSON.parse(cartData) : [];
         return json(items);
