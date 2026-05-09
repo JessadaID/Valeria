@@ -1,6 +1,6 @@
 import Redis from 'ioredis';
 
-const redis = new Redis(`rediss://default:${import.meta.env.VITE_REDIS_PASSWORD}@${import.meta.env.VITE_REDIS_HOST}:${import.meta.env.VITE_REDIS_PORT}`);
+const redis = new Redis(`rediss://default:${import.meta.env.VITE_REDIS_TOKEN}@${import.meta.env.VITE_REDIS_HOST}:${import.meta.env.VITE_REDIS_PORT}`);
 
 redis.on('connect', () => {
     console.log('Redis connected!');
