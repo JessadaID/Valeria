@@ -2,9 +2,9 @@ import Redis from 'ioredis';
 
 // Create a Redis client instance
 const redis = new Redis({
-    host: 'localhost',
-    port: 6379,
-    // password: 'MyStrongPassword123', 
+    host: import.meta.env.VITE_REDIS_HOST,
+    port: import.meta.env.VITE_REDIS_PORT,
+    password: import.meta.env.VITE_REDIS_PASSWORD,
 });
 
 redis.on('connect', () => {
