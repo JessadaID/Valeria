@@ -99,6 +99,7 @@
     <div class="flex space-x-4">
       {#if userProfile}
         <a href="/profile" class="text-xs text-slate-600 hover:text-violet-600">โปรไฟล์ <b class='font-bold'>{userProfile.user_metadata.username|| 'N/A'}</b></a>
+        <button on:click={async () => { await authStore.clearUser(); goto("/login"); } } class="text-xs text-slate-500 hover:text-red-600 transition-colors ml-2">ออกจากระบบ</button>
       {:else}
         <a href="/signup" class="text-xs text-slate-600 hover:text-violet-600">สมัครสมาชิก</a>
         <a href="/login" class="text-xs text-slate-600 hover:text-violet-600">เข้าสู่ระบบ</a>
