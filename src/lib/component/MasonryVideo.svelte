@@ -9,23 +9,23 @@
   let resizeTimeout;
   let layoutTimeout;
   
-  // Debounced version of initMasonryLayout
+
   function scheduleLayoutRecalculation() {
     clearTimeout(layoutTimeout);
     layoutTimeout = setTimeout(async () => {
-      await tick(); // Ensure DOM is updated before layout calculation
+      await tick();
       initMasonryLayout();
-    }, 60); // Adjusted debounce time slightly
+    }, 60);
   }
 
   function getColumnCount() {
-    if (typeof window === 'undefined') return 3; // Default for SSR or non-browser
+    if (typeof window === 'undefined') return 3;
     const width = window.innerWidth;
-    if (width >= 1280) return 4; // xl
-    if (width >= 1024) return 3; // lg (matches typical grid behavior better)
-    if (width >= 768) return 3;  // md
-    if (width >= 640) return 2;  // sm
-    return 1;                     // xs
+    if (width >= 1280) return 4;
+    if (width >= 1024) return 3;
+    if (width >= 768) return 3;
+    if (width >= 640) return 2;
+    return 1;
   }
 
   function initMasonryLayout() {
@@ -33,14 +33,14 @@
 
     const items = Array.from(galleryContainer.querySelectorAll('.masonry-item'));
 
-    // If on small screens where CSS handles layout (flex column), reset JS styles and bail
+
     if (typeof window !== 'undefined' && window.innerWidth <= 640) {
       galleryContainer.style.height = 'auto';
       items.forEach(item => {
         item.style.position = 'relative';
         item.style.left = 'auto';
         item.style.top = 'auto';
-        item.style.width = '100%'; // Let CSS handle width via class or default
+        item.style.width = '100%';
       });
       return;
     }
@@ -50,13 +50,13 @@
       return;
     }
 
-    const gap = 20; // This gap is used for vertical spacing in JS calculation
+    const gap = 20;
     const columns = getColumnCount();
     const columnHeights = new Array(columns).fill(0);
 
     items.forEach(item => {
-      const itemHeight = item.offsetHeight; // Actual height of the item
-      if (itemHeight === 0) return; // Skip if item not rendered or image not loaded
+      const itemHeight = item.offsetHeight;
+      if (itemHeight === 0) return;
 
       const shortestColumnIndex = columnHeights.indexOf(Math.min(...columnHeights));
       
@@ -65,10 +65,10 @@
       item.style.top = `${columnHeights[shortestColumnIndex]}px`;
       item.style.width = `calc(${(100 / columns)}% - ${gap * (columns - 1) / columns}px)`;
       
-      // The original code added itemHeight + gap.
-      // The item itself has mb-5 (1.25rem ~ 20px).
-      // If 'gap' is also 20, this means 20px from JS + 20px from margin.
-      // To maintain original behavior, we keep it.
+
+
+
+
       columnHeights[shortestColumnIndex] += itemHeight + gap;
     });
 
@@ -88,7 +88,7 @@
   }
 
   onMount(() => {
-    scheduleLayoutRecalculation(); // Initial layout
+    scheduleLayoutRecalculation();
     if (typeof window !== 'undefined') {
       window.addEventListener('resize', handleResize);
     }
@@ -101,7 +101,7 @@
     };
   });
 
-  // Recalculate layout if the goods array changes
+
   $: if (goods && galleryContainer) {
     scheduleLayoutRecalculation();
   }
@@ -166,33 +166,24 @@
   }
   
   .masonry-item {
-    transition: top 0.3s ease, left 0.3s ease, width 0.3s ease; /* Smooth transition for item repositioning */
+    transition: top 0.3s ease, left 0.3s ease, width 0.3s ease; 
   }
   
-  /* Responsive adjustments for small screens (handled by CSS flex) */
+  
   @media (max-width: 640px) {
     .masonry-container {
       display: flex;
       flex-direction: column;
-      gap: 1.25rem; /* Corresponds to mb-5 on items */
-      height: auto !important; /* Override JS height */
+      gap: 1.25rem; 
+      height: auto !important; 
     }
     .masonry-item {
       width: 100% !important;
-      position: relative !important; /* Override JS absolute positioning */
+      position: relative !important; 
       left: auto !important;
       top: auto !important;
-      margin-bottom: 0; /* Gap is handled by flex container */
+      margin-bottom: 0; 
     }
-    /* If masonry-item had mb-5, it might conflict with flex gap.
-       The flex 'gap' property is preferred for small screens.
-       The JS logic for masonry-item mb-5 is for larger screens.
-       The current setup has mb-5 on items, and flex gap on container.
-       It's better to have one source of truth for gap on small screens.
-       Let's ensure mb-5 is not applied when flex is active or remove it if flex gap is used.
-       For simplicity, the current CSS uses flex gap, so JS should not apply mb-5 related logic for small screens.
-       The JS already bails out for small screens, so mb-5 on items will apply from Tailwind.
-       The flex container `gap: 1.25rem` will correctly space items.
-    */
+    
   }
 </style>

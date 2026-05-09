@@ -1,46 +1,42 @@
 <script>
-  import { goto } from '$app/navigation';
-  import { supabase } from '$lib/supabaseClient';
-  import { StoreUser } from '$lib/stores/userStore'
-  import { errorAlert, successAlert } from '$lib/alertUtils';
+  import { goto } from "$app/navigation";
+  import { supabase } from "$lib/supabaseClient";
+  import { StoreUser } from "$lib/stores/userStore";
+  import { errorAlert, successAlert } from "$lib/alertUtils";
 
-  let email = '';
-  let password = '';
+  let email = "";
+  let password = "";
   let loading = false;
 
   let user = {};
-  
 
-    // ฟังก์ชันสำหรับ Login
   async function signIn() {
-
     try {
-      loading = true
-      const { data,error } = await supabase.auth.signInWithPassword({
+      loading = true;
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password
-      })
-      user = data
-      
+        password,
+      });
+      user = data;
 
       if (error) {
-        errorAlert(`เกิดข้อผิดพลาด: ${error.message}`)
+        errorAlert(`เกิดข้อผิดพลาด: ${error.message}`);
       } else {
-        successAlert('เข้าสู่ระบบสำเร็จ!')
-        StoreUser.setUser(user)
-        goto('/')
+        successAlert("เข้าสู่ระบบสำเร็จ!");
+        StoreUser.setUser(user);
+        goto("/");
       }
     } catch (error) {
-      errorAlert(`เกิดข้อผิดพลาด: ${error.message}`)
+      errorAlert(`เกิดข้อผิดพลาด: ${error.message}`);
     } finally {
-      loading = false
+      loading = false;
     }
   }
-
-
 </script>
 
-<div class=" flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+<div
+  class=" flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8"
+>
   <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg">
     <div>
       <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -52,18 +48,36 @@
       <div class="rounded-md shadow-sm -space-y-px">
         <div>
           <label for="email-address" class="sr-only">อีเมล</label>
-          <input id="email-address" name="email" type="email" bind:value={email} required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="อีเมล" />
+          <input
+            id="email-address"
+            name="email"
+            type="email"
+            bind:value={email}
+            required
+            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+            placeholder="อีเมล"
+          />
         </div>
         <div>
           <label for="password" class="sr-only">รหัสผ่าน</label>
-          <input id="password" name="password" type="password" bind:value={password} required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="รหัสผ่าน" />
+          <input
+            id="password"
+            name="password"
+            type="password"
+            bind:value={password}
+            required
+            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+            placeholder="รหัสผ่าน"
+          />
         </div>
       </div>
 
- 
-
       <div>
-        <button type="submit" disabled={loading} class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <button
+          type="submit"
+          disabled={loading}
+          class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
           {#if loading}
             <span>กำลังเข้าสู่ระบบ...</span>
           {:else}
@@ -73,7 +87,10 @@
       </div>
     </form>
     <div class="text-sm text-center">
-      <a href="/signup" class="font-medium text-indigo-600 hover:text-indigo-500">
+      <a
+        href="/signup"
+        class="font-medium text-indigo-600 hover:text-indigo-500"
+      >
         ยังไม่มีบัญชี? สร้างบัญชีใหม่
       </a>
     </div>

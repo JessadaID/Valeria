@@ -11,15 +11,15 @@
   let cartItems = [];
   let userProfile = null;
 
-  // Reactive statement สำหรับคำนวณจำนวนสินค้าในตะกร้า
+
   $: cartItemCount = cartItems.reduce((total, item) => total + (item.quantity || 1), 0);
 
-  // Subscribe to cart store
+
   const unsubscribeCart = cartStore.subscribe(items => {
     cartItems = items;
   });
 
-  // Subscribe to auth store
+
   const unsubscribeAuth = authStore.subscribe(storeState => {
     if (storeState && storeState.user) {
       userProfile = storeState.user;
@@ -45,10 +45,10 @@
   }
 
   onMount(() => {
-    // โหลดข้อมูลตะกร้าจาก localStorage เมื่อ component โหลด
+
     cartStore.loadFromStorage();
     
-    // ฟัง storage event สำหรับการเปลี่ยนแปลงจากแท็บอื่น
+
     const handleStorageChange = (event) => {
       if (event.key === 'cartitem') {
         cartStore.refresh();
@@ -79,10 +79,10 @@
 
 <nav class="py-3 border-gray-200 border-b-2">
     
-  <!-- Top bar for social media and auth links -->
+  
   <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center my-1">
 
-    <!-- Social Media Links -->
+    
     <div class="flex space-x-4 ">
       <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="text-sm text-slate-600 hover:text-violet-600 ">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-facebook"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3" /></svg>
@@ -95,7 +95,7 @@
     </a>
     </div>
     
-    <!-- Auth Links -->
+    
     <div class="flex space-x-4">
       {#if userProfile}
         <a href="/profile" class="text-xs text-slate-600 hover:text-violet-600">โปรไฟล์ <b class='font-bold'>{userProfile.user_metadata.username|| 'N/A'}</b></a>
@@ -107,12 +107,12 @@
   </div>
 
   <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-    <!-- Brand/Logo -->
+    
 		<div class="ms-5">
 			<a href="/" class="text-2xl font-semibold text-violet-600 ubuntu-regular">Valeria</a>
 		</div>
     
-    <!-- Search Bar -->
+    
     <div class="relative flex-grow max-w-2xl mx-4"> 
       <input
 		type="text"
@@ -125,7 +125,7 @@
 		class="w-full pl-4 pr-10 py-2 border border-gray-300 bg-gray-50 text-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
 	/>
 
-	<!-- 🔍 ปุ่มค้นหา -->
+	
 	<button
 		on:click={handleSearch}
 		type="button"
@@ -138,7 +138,7 @@
 		</svg>
 	</button>
 
-      <!-- 🔽 Drop-down Suggestions -->
+      
       {#if isDropdownVisible}
         <ul class="absolute z-20 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg" on:click={() => handleSearch()}>
             <li
@@ -151,7 +151,7 @@
       {/if}
     </div>
 
-    <!-- Icons -->
+    
     <div class="flex max-w-7xl space-x-6 ">
 	  <a href="/cart" class="relative text-slate-600 hover:text-violet-600">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

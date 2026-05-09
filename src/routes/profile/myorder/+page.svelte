@@ -40,7 +40,7 @@
                                     if (item.image_id) {
                                         try {
                                             const pixabayApiKey = import.meta.env.VITE_PIXABAY_API_KEY;
-                                            // ตรวจสอบประเภทของสินค้าจากฐานข้อมูล (item.type)
+
                                             const isVideo = item.type === 'film';
                                             const endpoint = isVideo ? 'videos/' : '';
                                             const pixabayUrl = `https://pixabay.com/api/${endpoint}?key=${pixabayApiKey}&id=${item.image_id}`;
@@ -51,11 +51,11 @@
                                                 item.tag = hit.tags || item.tag || 'ไม่ระบุชื่อสินค้า';
 
                                                 if (isVideo) {
-                                                    // สำหรับวิดีโอ: สร้าง URL ของ thumbnail จาก picture_id
+
                                                     item.imageUrl = hit.videos?.tiny?.thumbnail;
                                                     item.thumbnailUrl = hit.videos?.tiny?.thumbnail;
                                                 } else {
-                                                    // สำหรับรูปภาพ: ใช้ URL ที่ได้รับมาโดยตรง
+
                                                     item.imageUrl = hit.webformatURL;
                                                     item.thumbnailUrl = hit.previewURL;
                                                 }

@@ -3,43 +3,43 @@
   import { quintOut, quintIn } from 'svelte/easing';
   import { onDestroy, createEventDispatcher } from 'svelte';
 
-  export let id; // เพิ่ม prop id เข้ามาเพื่อใช้ในการระบุ alert แต่ละอัน
-  export let type = 'info'; // 'success', 'warning', 'error', 'info'
+  export let id;
+  export let type = 'info';
   export let message = '';
-  export let duration = 4000; // Auto hide duration in milliseconds
-  export let position = 'bottom-center'; // 'top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right'
+  export let duration = 4000;
+  export let position = 'bottom-center';
   export let showIcon = true;
   export let closeable = true;
 
   const dispatch = createEventDispatcher();
   let timeoutId;
 
-  // Central function to manage the alert's timer.
+
   function manageAlertTimer() {
     if (timeoutId) {
       clearTimeout(timeoutId);
       timeoutId = null;
     }
-    // Only set a new timer if there's a message and a positive duration
+
     if (message && duration > 0) {
       timeoutId = setTimeout(() => {
-        dispatch('hide', { id }); // ส่ง id กลับไปเมื่อ alert ซ่อนตัว
+        dispatch('hide', { id });
       }, duration);
     }
   }
 
-  // Reactive statement: re-evaluate and manage timer when message or duration changes.
-  $: manageAlertTimer(message, duration); // ไม่จำเป็นต้องใช้ message หรือ duration ในการสั่งให้มัน re-run
+
+  $: manageAlertTimer(message, duration);
 
   function handleManualClose() {
     if (timeoutId) {
       clearTimeout(timeoutId);
       timeoutId = null;
     }
-    dispatch('hide', { id }); // ส่ง id กลับไปเมื่อ alert ถูกปิดด้วยมือ
+    dispatch('hide', { id });
   }
 
-  // Get position classes
+
   function getPositionClasses(pos) {
     const positions = {
       'top-left': 'top-5 left-5',
@@ -52,7 +52,7 @@
     return positions[pos] || positions['bottom-center'];
   }
 
-  // Get type-specific styles
+
   function getTypeStyles(alertType) {
     const styles = {
       success: {

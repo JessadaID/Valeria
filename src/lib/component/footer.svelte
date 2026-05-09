@@ -5,17 +5,17 @@
 <footer class="bg-gray-800 text-gray-300 py-12 sm:py-16">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-10">
-      <!-- About Section -->
+      
       <div class="sm:col-span-2 md:col-span-1">
         <h5 class="text-lg font-semibold text-white mb-4 ubuntu-regular">เกี่ยวกับ Valeria</h5>
         <p class="text-sm leading-relaxed">
           แพลตฟอร์มสำหรับค้นหาและดาวน์โหลดภาพถ่าย สต็อกวิดีโอ และเวกเตอร์คุณภาพสูงสำหรับโปรเจกต์สร้างสรรค์ของคุณ เรามุ่งมั่นที่จะนำเสนอเนื้อหาที่ดีที่สุดจากช่างภาพและศิลปินทั่วโลก
         </p>
-        <!-- Optional: Logo -->
-        <!-- <img src="/logo-white.svg" alt="Logo" class="mt-4 h-8"> -->
+        
+        
       </div>
 
-      <!-- Quick Links -->
+      
       <div>
         <h5 class="text-lg font-semibold text-white mb-4">ลิงก์ด่วน</h5>
         <ul class="space-y-3 text-sm">
@@ -27,7 +27,7 @@
         </ul>
       </div>
 
-      <!-- Legal & Help -->
+      
       <div>
         <h5 class="text-lg font-semibold text-white mb-4">ช่วยเหลือ & กฎหมาย</h5>
         <ul class="space-y-3 text-sm">
@@ -38,11 +38,11 @@
         </ul>
       </div>
 
-      <!-- Social Media & Contact -->
+      
       <div>
         <h5 class="text-lg font-semibold text-white mb-4">ติดตามเรา</h5>
         <div class="flex space-x-4 mb-5">
-          <!-- Replace # with your actual social media links and consider using SVG icons from a library or your own files -->
+          
           <a href="#" aria-label="Facebook" class="text-gray-400 hover:text-white transition-colors duration-200">
             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
               <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/>

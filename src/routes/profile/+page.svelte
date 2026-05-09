@@ -4,12 +4,11 @@
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
 
-  // ตัวแปรสำหรับเก็บข้อมูลผู้ใช้จาก store
   let userProfile = null;
   let isLoading = false;
   let showModal = false;
   let name = "";
-  // ติดตามการเปลี่ยนแปลงของ user store
+
   const unsubscribe = authStore.subscribe((storeState) => {
     if (storeState && storeState.user) {
       userProfile = storeState.user;
@@ -25,7 +24,6 @@
         unsubscribe();
       }
     };
-    
   });
 
   function handleChangePassword() {
@@ -33,7 +31,10 @@
   }
 
   async function handleUpdateProfile() {
-    const { data: { user }, error } = await supabase.auth.updateUser({
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.updateUser({
       data: {
         username: name,
       },
@@ -41,11 +42,10 @@
     if (error) {
       alert("เกิดข้อผิดพลาดในการอัปเดตโปรไฟล์: " + error.message);
       return;
-    }else{
+    } else {
       authStore.updateUser(user);
       userProfile = user;
       alert("อัปเดตโปรไฟล์สำเร็จ");
-      
     }
     showModal = false;
   }
@@ -67,7 +67,6 @@
     }
   }
 
-  // ฟังก์ชันสำหรับสร้างอวตารจากชื่อ
   function getInitials(name) {
     if (!name) return "?";
     return name
@@ -93,7 +92,6 @@
 </script>
 
 <div class="min-h-screen bg-gray-50">
-  <!-- Header -->
   <div class="bg-white shadow-sm border-b">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
@@ -122,12 +120,10 @@
   {#if userProfile}
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Profile Card -->
         <div class="lg:col-span-1">
           <div
             class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
           >
-            <!-- Profile Header -->
             <div
               class="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-8 text-center"
             >
@@ -142,7 +138,6 @@
               <p class="text-blue-100 text-sm">{userProfile.email}</p>
             </div>
 
-            <!-- Profile Info -->
             <div class="p-6 space-y-4">
               <div class="flex items-center text-sm">
                 <svg
@@ -202,9 +197,7 @@
           </div>
         </div>
 
-        <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
-          <!-- Quick Actions -->
           <div
             class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
           >
@@ -324,7 +317,6 @@
             </div>
           </div>
 
-          <!-- Account Information -->
           <div
             class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
           >
@@ -374,7 +366,6 @@
             </div>
           </div>
 
-          <!-- Security Settings -->
           <div
             class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
           >
@@ -444,7 +435,6 @@
       </div>
     </div>
   {:else}
-    <!-- Not Logged In State -->
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div class="text-center">
         <div
@@ -493,7 +483,6 @@
     class="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
     on:click={() => (showModal = false)}
   >
-    <!-- modal content -->
     <div
       class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md"
       on:click|stopPropagation

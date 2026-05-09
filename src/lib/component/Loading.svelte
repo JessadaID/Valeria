@@ -1,18 +1,7 @@
 <script lang="ts">
-  /**
-   * @description
-   * This component displays a simple, clean, and elegant loading spinner.
-   * It can be used anywhere in your Svelte application to indicate a loading state.
-   *
-   * @props
-   * - `size`: string (optional) - The size of the spinner (e.g., '50px', '3rem'). Defaults to '40px'.
-   * - `color`: string (optional) - The color of the spinner. Defaults to '#3498db' (a nice blue).
-   * - `thickness`: string (optional) - The thickness of the spinner's border. Defaults to '4px'.
-   * - `speed`: string (optional) - The speed of the animation. Defaults to '0.8s'.
-   * - `ariaLabel`: string (optional) - ARIA label for accessibility. Defaults to 'Loading...'.
-   */
+  
   export let size: string = '40px';
-  export let color: string = '#3498db'; // A pleasant blue
+  export let color: string = '#3498db';
   export let thickness: string = '4px';
   export let speed: string = '0.8s';
   export let ariaLabel: string = 'Loading...';
@@ -43,7 +32,7 @@
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 100%; /* Adjust as needed, or make it part of the parent's layout */
+    height: 100%; 
   }
 
   .spinner {

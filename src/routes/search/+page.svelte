@@ -1,49 +1,50 @@
 <script>
-  import { page } from "$app/stores"; // แก้ไข: import จาก $app/stores แทน $app/state
+  import { page } from "$app/stores";
   import { onMount, onDestroy } from "svelte";
   import MasonryGallery from "$lib/component/MasonryGallery.svelte";
   import { errorAlert } from "$lib/alertUtils";
   import Loading from "$lib/component/Loading.svelte";
-  // $: ทำให้ query อัปเดตอัตโนมัติเมื่อ $page.url.searchParams เปลี่ยนแปลง
-  $: query = $page.url.searchParams.get('q'); 
+  $: query = $page.url.searchParams.get("q");
 
   const PIXABAY_API_KEY = import.meta.env.VITE_PIXABAY_API_KEY;
 
-  // Initialize goods with a structure that the template expects
+
   let goods = { hits: [], total: 0, error: null };
   let currentPage = 1;
   let loadingMore = false;
-  let hasMore = true; // Assume there might be more initially
+  let hasMore = true;
   let isLoading = false;
 
   async function fetchGoods(pageToFetch = 1) {
-    if (!query) { // Don't fetch if there's no query
+    if (!query) {
+
       goods = { hits: [], total: 0, error: null };
       currentPage = 1;
       hasMore = false;
       loadingMore = false;
       return;
     }
-    if (loadingMore) return; // Prevent multiple simultaneous fetches
+    if (loadingMore) return;
 
     loadingMore = true;
-    if (pageToFetch === 1) { // For a new query or initial load
-      goods = { hits: [], total: 0, error: null }; // Reset goods for new search
+    if (pageToFetch === 1) {
+
+      goods = { hits: [], total: 0, error: null };
     }
-    goods.error = null; // Clear previous errors for the current attempt
+    goods.error = null;
 
     try {
-      isLoading = true; // Set loading state
+      isLoading = true;
       const apiUrl = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(query)}&image_type=photo&per_page=20&safesearch=true&page=${pageToFetch}`;
       const respond = await fetch(apiUrl);
 
       if (!respond.ok) {
         console.error(`HTTP error! status: ${respond.status}`);
         goods.error = `Failed to fetch: ${respond.statusText}`;
-        hasMore = false; // Stop trying to load more on error
+        hasMore = false;
         if (pageToFetch === 1) {
-            goods.hits = [];
-            goods.total = 0;
+          goods.hits = [];
+          goods.total = 0;
         }
         return;
       }
@@ -52,40 +53,39 @@
 
       if (pageToFetch === 1) {
         goods.hits = data.hits || [];
-        goods.total = data.totalHits || 0; // Use totalHits for pagination limit
+        goods.total = data.totalHits || 0;
       } else {
         goods.hits = [...goods.hits, ...(data.hits || [])];
-        // goods.total (totalHits) remains the same from the first fetch
+
       }
-      
+
       currentPage = pageToFetch;
       hasMore = goods.hits.length < goods.total;
       if (data.hits && data.hits.length === 0 && pageToFetch > 1) {
-          hasMore = false; // API returned no new hits for this page
+        hasMore = false;
       }
-
     } catch (error) {
       console.error("Error fetching search results:", error);
       goods.error = "An error occurred while fetching data.";
       if (pageToFetch === 1) {
-          goods.hits = [];
-          goods.total = 0;
+        goods.hits = [];
+        goods.total = 0;
       }
-      hasMore = false; // Stop trying on catch
+      hasMore = false;
     } finally {
       loadingMore = false;
-      isLoading = false; // Clear loading state
+      isLoading = false;
     }
   }
 
-  // Reactive statement to fetch data when query changes
+
   $: {
     if (query) {
-      currentPage = 1; // Reset page for new query
-      hasMore = true;    // Assume new query might have more results
-      fetchGoods(1);   // Fetch first page for the new query
+      currentPage = 1;
+      hasMore = true;
+      fetchGoods(1);
     } else {
-      // Reset goods if there is no query
+
       goods = { hits: [], total: 0, error: null };
       currentPage = 1;
       hasMore = false;
@@ -93,9 +93,10 @@
     }
   }
 
-  // Scroll handler to load more goods
+
   async function handleScroll() {
-    const nearBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 350; // 300px threshold
+    const nearBottom =
+      window.innerHeight + window.scrollY >= document.body.offsetHeight - 350;
 
     if (nearBottom && !loadingMore && hasMore && query) {
       await fetchGoods(currentPage + 1);
@@ -103,10 +104,10 @@
   }
 
   onMount(() => {
-      window.addEventListener('scroll', handleScroll);
-      return () => {
-        window.removeEventListener('scroll', handleScroll);
-      };
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   });
 </script>
 

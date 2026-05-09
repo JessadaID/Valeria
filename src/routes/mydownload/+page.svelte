@@ -4,7 +4,7 @@
   import { onMount, tick } from "svelte";
 
   import MediaItem from "./MediaItem.svelte";
-  import MediaTabs from "./MediaTabs.svelte"; // ตรวจสอบพาธให้ถูกต้อง
+  import MediaTabs from "./MediaTabs.svelte";
 
   const PIXABAY_API_KEY = import.meta.env.VITE_PIXABAY_API_KEY;
 
@@ -15,7 +15,7 @@
   let galleryContainer;
   let resizeTimeout;
   let layoutTimeout;
-  let selectedMediaType = "image"; // Default เป็น 'image'
+  let selectedMediaType = "image";
 
   function scheduleLayoutRecalculation() {
     clearTimeout(layoutTimeout);
@@ -125,15 +125,15 @@
 
         const processedItems = await Promise.all(
           orderItems.map(async (item) => {
-            // *** การเปลี่ยนแปลงตรงนี้: แปลง type ให้เป็น 'image' ถ้าเข้าเงื่อนไข ***
+
             let mediaType = item.type;
             if (
               ["all", "photo", "illustration", "vector/svg"].includes(mediaType)
             ) {
               mediaType = "image";
             }
-            // ***************************************************************
-            //console.log("Processing item:", item);
+
+
             const pixabayId = item.image_id;
 
             if (!pixabayId || !mediaType) {
@@ -161,7 +161,7 @@
               if (pixabayData.hits && pixabayData.hits.length > 0) {
                 const hit = pixabayData.hits[0];
                 item.tag = hit.tags || item.tag || "ไม่ระบุชื่อสินค้า";
-                item.type = mediaType; // ใช้ mediaType ที่ถูกแปลงแล้ว
+                item.type = mediaType;
                 item.pixabayId = pixabayId;
 
                 if (mediaType === "film") {
@@ -173,7 +173,7 @@
                   item.downloads = hit.downloads;
                   item.likes = hit.likes;
                 } else {
-                  // mediaType === 'image'
+
                   item.previewUrl = hit.previewURL;
                   item.thumbnailUrl = hit.webformatURL;
                   item.fullUrl = hit.largeImageURL;
@@ -181,7 +181,7 @@
                   item.downloads = hit.downloads;
                   item.likes = hit.likes;
                 }
-                //console.log(`Processed item for ID: ${pixabayId}, type: ${mediaType}`, item);
+
               } else {
                 console.warn(
                   `No Pixabay data found for ID: ${pixabayId}, type: ${mediaType}`
@@ -344,7 +344,7 @@
       width 0.3s ease;
   }
 
-  /* Responsive adjustments for small screens (handled by CSS flex) */
+  
   @media (max-width: 640px) {
     .masonry-container {
       display: flex;
