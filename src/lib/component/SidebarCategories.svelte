@@ -1,23 +1,6 @@
 <script>
-  import { onMount } from "svelte";
-
   export let categories = [];
-  let randomImages = [];
-
-  const PIXABAY_API_KEY = import.meta.env.VITE_PIXABAY_API_KEY;
-
-  onMount(async () => {
-    try {
-      const response = await fetch(
-        `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&order=latest&per_page=4&safesearch=true&image_type=photo`,
-      );
-      const data = await response.json();
-      randomImages = data.hits || [];
-    } catch (error) {
-      console.error("Error fetching random images:", error);
-      randomImages = [];
-    }
-  });
+  export let randomImages = [];
 </script>
 
 <aside class="w-full md:w-1/3 lg:w-1/4">
