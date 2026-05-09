@@ -40,7 +40,6 @@ function createPersistentUserStore() {
           if (typeof localStorage !== "undefined") {
             localStorage.setItem("currentUser", JSON.stringify(updatedUser));
           }
-          console.log("Updated user:", updatedUser);
           return updatedUser;
         }
         return currentUser;

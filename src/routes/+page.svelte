@@ -2,7 +2,9 @@
   import Carousel from "$lib/component/carousel.svelte";
   import SidebarCategories from "$lib/component/SidebarCategories.svelte";
   import MasonryGallery from "$lib/component/MasonryGallery.svelte";
-  import { onMount } from "svelte";
+
+  export let data;
+  $: ({ goods } = data);
 
   const categories = [
     {
@@ -36,18 +38,6 @@
       link: "/category/video",
     },
   ];
-
-  let goods = [];
-
-  const PIXABAY_API_KEY = import.meta.env.VITE_PIXABAY_API_KEY;
-
-  onMount(async () => {
-    const respond = await fetch(
-      `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&order=popular&per_page=8&safesearch=true`,
-    );
-    const data = await respond.json();
-    goods = data.hits;
-  });
 </script>
 
 <div class="min-h-screen bg-gray-50/30">
