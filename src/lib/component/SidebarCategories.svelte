@@ -4,7 +4,7 @@
   export let categories = [];
   let randomImages = [];
 
-  const PIXABAY_API_KEY = import.meta.env.VITE_PUBLIC_PIXABAY_API_KEY;
+  const PIXABAY_API_KEY = import.meta.env.VITE_PIXABAY_API_KEY;
 
   onMount(async () => {
     try {
